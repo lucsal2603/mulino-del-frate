@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mulino del Frate</title>
+<meta name="description" content="Mulino del Frate, Roncobilaccio: miele, Castagnella, unguenti e cosmesi naturale da un mulino in pietra di oltre cinquecento anni nell'Appennino tosco-emiliano.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14Zm0 0 7-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8.5 12.5l2.3 2.3 4.7-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-fb" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M15 8h-1.6c-1 0-1.9.8-1.9 1.9V20M9.5 12.5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-macina" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="8" fill="none" stroke="currentColor" stroke-width="3"/><g stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M58 50 92 44M50 58l6 34M42 50 8 56M50 42 44 8M56 56l24 24M44 44 20 20M56 44l24-24M44 56 20 80"/></g></symbol>
+</svg>
+
+<!-- sipario di caricamento e di cambio pagina -->
+<div id="curtain" aria-hidden="true"><span id="curtainWord">Mulino del Frate</span></div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <button class="nav-side" id="menuBtn" aria-expanded="false" aria-controls="menu"><span class="burger" aria-hidden="true"><i></i><i></i></span><span class="nav-label" id="menuLabel">Menu</span></button>
+  <a class="brand" href="#home" data-go="home" aria-label="Mulino del Frate, home"><span class="brand-name">Mulino del Frate</span><span class="brand-sub">Roncobilaccio</span></a>
+  <button class="nav-side right" data-open-cart aria-label="Apri il carrello"><span class="nav-label">Carrello</span><span class="badge" data-count>0</span></button>
+</header>
+
+<!-- MENU -->
+<nav class="menu" id="menu" aria-label="Menu principale" aria-hidden="true">
+  <div class="menu-inner">
+    <ul>
+      <li><a href="#home" data-go="home"><span>Home</span></a></li>
+      <li><a href="#bottega" data-go="bottega"><span>La bottega</span></a></li>
+      <li><a href="#home" data-go="home" data-to="storia"><span>La nostra storia</span></a></li>
+      <li><a href="#home" data-contact><span>Contatti</span></a></li>
+    </ul>
+    <div class="menu-info">
+      <p>Via della Torre 17, Roncobilaccio<br>40035 Castiglione dei Pepoli (BO)</p>
+      <p>mulinodelfrate@gmail.com<br>+39 348 250 2474</p>
+    </div>
+  </div>
+</nav>
+
+<div class="site" id="site">
+
+<!-- =============== HOME =============== -->
+<main class="view" id="v-home" data-view="home">
+
+  <section class="hero">
+    <div class="hero-frame" id="heroFrame">
+      <div class="hero-img"><img src="assets/hero-insegna.jpg" alt="L'insegna in legno del Mulino del Frate, podere La Vanella, sulle colline dell'Appennino" id="heroImg"></div>
+      <h1 class="hero-title fit" id="heroTitle">Mulino del Frate</h1>
+    </div>
+  </section>
+
+  <section class="about engr">
+    <div class="engr-bg" aria-hidden="true"><img src="assets/inc-fiume.webp" alt="" data-speed="-10"></div>
+    <div class="about-copy">
+      <p class="statement" id="statement">
+        Da oltre cinquecento anni <span class="pic r1"><img src="assets/fiume.jpg" alt="Il fiume Gambellato vicino al Mulino"></span> <em>acqua</em> e <em>pietra</em> sul fiume Gambellato. Oggi le nostre api e le erbe dei campi <span class="pic r2"><img src="assets/apiario.jpg" alt="Le arnie del Mulino"></span> diventano miele, tisane e rimedi naturali.
+      </p>
+      <a href="#home" class="oval" data-to="storia">La nostra storia</a>
+    </div>
+
+    <div class="antico" id="antico">
+      <h2 class="giant" id="anticoTitle">Un <em>miele</em><br>antico</h2>
+      <img class="jar-rise" id="jarRise" src="assets/c-castagnella.webp" alt="Vasetto di Castagnella del Mulino del Frate">
+      <div class="antico-cta"><a href="#prodotto-castagnella" data-go="prodotto-castagnella" class="oval">Acquista ora</a></div>
+    </div>
+  </section>
+
+  <section class="film">
+    <div class="film-box" id="filmBox">
+      <svg class="drip" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><defs><filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="8"/><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10"/></filter><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d99a1e"/><stop offset="1" stop-color="#f2b33d"/></linearGradient></defs><g filter="url(#goo)" fill="url(#hg)" id="dripG"></g></svg>
+      <img src="assets/scaffale.jpg" alt="I prodotti del Mulino del Frate su un tavolo di pietra al sole, davanti al bosco" id="filmImg">
+    </div>
+  </section>
+
+  <section class="sapori">
+    <p class="kicker">I sapori dell'alveare</p>
+    <p class="statement small" id="sapori">Con il miele e la propoli delle nostre api <span class="pic r3"><img src="assets/c-miele.webp" alt="Vasetto di miele millefiori balsamico" class="cut"></span> prepariamo creme, unguenti e cosmetici naturali.</p>
+    <div class="shelf-wrap">
+      <h2 class="giant dark" id="bottegaTitle">La nostra<br>bottega</h2>
+      <div class="shelf" id="shelf"></div>
+    </div>
+    <div class="center"><a href="#bottega" data-go="bottega" class="oval">Acquista ora</a></div>
+  </section>
+
+  <section class="storia" id="storia">
+    <h2 class="giant light" id="storiaTitle">La st<svg class="glyph" aria-hidden="true"><use href="#i-macina"/></svg>ria<br><em>del</em> mulino</h2>
+    <span class="sr">La storia del mulino</span>
+    <div class="cards-wrap">
+      <div class="cards" id="cards"></div>
+      <button class="round" id="cardsNext" aria-label="Scorri le card"><svg><use href="#i-arrow"/></svg></button>
+    </div>
+  </section>
+
+  <section class="banner">
+    <div class="banner-box" id="bannerBox">
+      <img src="assets/fiume.jpg" alt="Il greto del fiume Gambellato tra gli alberi, vicino al Mulino" id="bannerImg">
+      <div class="banner-copy">
+        <h2 id="bannerTitle">Hai domande sui nostri prodotti?</h2>
+        <button class="oval light" data-contact>Contattaci</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- =============== BOTTEGA =============== -->
+<main class="view" id="v-bottega" data-view="bottega" hidden>
+  <section class="cat engr">
+    <div class="engr-bg fixed-top" aria-hidden="true"><img src="assets/inc-fiume.webp" alt=""></div>
+    <h1 class="giant dark cat-title" id="catTitle">La nostra<br>bottega</h1>
+    <div class="filters" id="filters" role="group" aria-label="Filtra per categoria"></div>
+    <div class="pgrid" id="pgrid"></div>
+    <p class="note">Prezzi indicativi della bozza, da confermare con Lucilla prima della messa online.</p>
+  </section>
+</main>
+
+<!-- =============== PRODOTTO =============== -->
+<main class="view" id="v-prodotto" data-view="prodotto" hidden>
+  <section class="pdp" id="pdp"></section>
+  <section class="life"><div class="life-box"><img src="assets/erbe.jpg" alt="Cesti di erbe essiccate su un tavolo all'aperto" id="lifeImg"></div></section>
+  <section class="also engr">
+    <div class="engr-bg" aria-hidden="true"><img src="assets/inc-fiume.webp" alt=""></div>
+    <h2 class="also-title">Ti consigliamo anche…</h2>
+    <div class="pgrid three" id="also"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-top">
+    <a class="foot-brand" href="#home" data-go="home">Mulino del Frate</a>
+    <ul>
+      <li><a href="#home" data-go="home">Home</a></li>
+      <li><a href="#bottega" data-go="bottega">La bottega</a></li>
+      <li><a href="#home" data-go="home" data-to="storia">La nostra storia</a></li>
+    </ul>
+    <ul>
+      <li><a href="#home" data-contact>Contatti</a></li>
+      <li><a href="#home" data-contact>Vieni a trovarci</a></li>
+      <li><a href="#home" data-contact>Confezioni regalo</a></li>
+    </ul>
+    <ul class="muted">
+      <li>Termini e condizioni</li>
+      <li>Spedizioni</li>
+    </ul>
+    <a class="insta" href="https://www.facebook.com/MulinodelFrate.Roncobilaccio" aria-label="Mulino del Frate su Facebook"><svg><use href="#i-fb"/></svg></a>
+  </div>
+  <div class="foot-legal">
+    <span>Mulino del Frate</span><span>+39 348 250 2474</span><span>Via della Torre 17, 40035 Castiglione dei Pepoli (BO), Italia</span><span>C.F. PRLLLL53M58I634N</span>
+    <span class="credit">Bozza di restyling di Luca Salvemini</span>
+  </div>
+</footer>
+</div>
+
+<!-- CART -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Carrello" aria-hidden="true">
+  <header><h2>Carrello</h2><button class="x" data-close-cart aria-label="Chiudi il carrello"><svg><use href="#i-x"/></svg></button></header>
+  <div class="lines" id="lines"></div>
+  <footer>
+    <div class="tot"><span>Totale</span><span id="total">€ 0,00</span></div>
+    <button class="blk" id="checkout">Invia l'ordine</button>
+    <small>Il pagamento online si collega nella prossima fase. Per ora l'ordine arriva a Lucilla, che ti ricontatta per ritiro o spedizione.</small>
+  </footer>
+</aside>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true"><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="draft">Bozza di restyling, non è il sito ufficiale</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
