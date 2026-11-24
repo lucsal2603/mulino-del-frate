@@ -634,7 +634,7 @@ let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTime
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       }).addTo(map);
       const icon = L.divIcon({ className: 'pin-mdf', iconSize: [54, 66], iconAnchor: [27, 64], popupAnchor: [0, -58],
-        html: '<svg viewBox="0 0 54 66"><path d="M27 64S4 40 4 25a23 23 0 0 1 46 0c0 15-23 39-23 39Z" fill="#f2b33d" stroke="#151310" stroke-width="2.5"/><g transform="translate(13 11) scale(.28)" color="#151310"><use href="#i-macina"/></g></svg>' });
+        html: '<svg viewBox="0 0 54 66"><path d="M27 64S4 40 4 25a23 23 0 0 1 46 0c0 15-23 39-23 39Z" fill="#f2b33d" stroke="#151310" stroke-width="2.5"/><circle cx="27" cy="25" r="16" fill="#efebe6"/><g fill="none" stroke="#151310" stroke-linecap="round"><circle cx="27" cy="25" r="11.5" stroke-width="2.2"/><path d="M29.09 25.00 L37.98 23.43 M27.00 27.09 L28.57 35.98 M24.91 25.00 L16.02 26.57 M27.00 22.91 L25.43 14.02 M28.57 26.57 L34.84 32.84 M25.43 23.43 L19.16 17.16 M28.57 23.43 L34.84 17.16 M25.43 26.57 L19.16 32.84" stroke-width="1.7"/><circle cx="27" cy="25" r="2.4" stroke-width="2" fill="#efebe6"/></g></svg>' });
       L.marker(MULINO, { icon, title: 'Mulino del Frate' }).addTo(map)
         .bindPopup('<b>Mulino del Frate</b>Via della Torre 17, Roncobilaccio<br>sul torrente Gambellato').openPopup();
       // la mappa trascinabile con un dito solo bloccherebbe lo scroll della pagina: su touch si sposta con i pulsanti + e -
