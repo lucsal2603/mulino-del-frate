@@ -16,6 +16,11 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12.1a1 1 0 0 1-1 .9H7.2a1 1 0 0 1-1-.9L5 8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="i-tel" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.5 4-1.9 1.3a11 11 0 0 0 6.4 6.4l1.3-1.9 4 1.5v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 19.5l1.2-3.6A8 8 0 1 1 8.4 19L4 19.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 10.5h6M9 13.5h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11Z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="2.3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14Zm0 0 7-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -44,7 +49,7 @@
       <li><a href="#home" data-go="home"><span>Home</span></a></li>
       <li><a href="#bottega" data-go="bottega"><span>Shop online</span></a></li>
       <li><a href="#home" data-go="home" data-to="storia"><span>La nostra storia</span></a></li>
-      <li><a href="#home" data-contact><span>Contatti</span></a></li>
+      <li><a href="#home" data-go="home" data-to="visita"><span>Contatti e mappa</span></a></li>
     </ul>
     <div class="menu-info">
       <p>Via della Torre 17, Roncobilaccio<br>40035 Castiglione dei Pepoli (BO)</p>
@@ -113,7 +118,29 @@
       <img src="assets/fiume.jpg" alt="Il greto del fiume Gambellato tra gli alberi, vicino al Mulino" id="bannerImg">
       <div class="banner-copy">
         <h2 id="bannerTitle">Hai domande sui nostri prodotti?</h2>
-        <button class="oval light" data-contact>Contattaci</button>
+        <a href="#home" data-go="home" data-to="visita" class="oval light">Contattaci</a>
+      </div>
+    </div>
+  </section>
+  <section class="visita" id="visita">
+    <div class="visita-head">
+      <p class="kicker">Dove siamo</p>
+      <h2 class="giant dark" id="visitaTitle">Vieni a<br><em>trovarci</em></h2>
+    </div>
+    <div class="visita-grid">
+      <div class="map-box">
+        <div id="map" role="region" aria-label="Mappa: il Mulino del Frate a Roncobilaccio, sul torrente Gambellato"></div>
+        <div class="map-fallback" id="mapFallback" hidden><p>La mappa non si è caricata.</p><a class="oval" href="https://www.google.com/maps/search/?api=1&amp;query=Via+della+Torre+17,+Roncobilaccio,+40035+Castiglione+dei+Pepoli+BO" target="_blank" rel="noopener">Apri in Google Maps</a></div>
+        <a class="map-open" href="https://www.google.com/maps/search/?api=1&amp;query=Via+della+Torre+17,+Roncobilaccio,+40035+Castiglione+dei+Pepoli+BO" target="_blank" rel="noopener">Apri in Google Maps</a>
+      </div>
+      <div class="contacts">
+        <a class="ct big" href="tel:+393482502474"><svg class="ct-i" aria-hidden="true"><use href="#i-tel"/></svg><span><span class="ct-k">Telefono</span><span class="ct-v">+39 348 250 2474</span></span></a>
+        <a class="ct big" href="https://wa.me/393482502474" target="_blank" rel="noopener"><svg class="ct-i" aria-hidden="true"><use href="#i-chat"/></svg><span><span class="ct-k">WhatsApp</span><span class="ct-v">Scrivici un messaggio</span></span></a>
+        <a class="ct" href="mailto:mulinodelfrate@gmail.com"><svg class="ct-i" aria-hidden="true"><use href="#i-mail"/></svg><span><span class="ct-k">Email</span><span class="ct-v">mulinodelfrate@gmail.com</span></span></a>
+        <div class="ct"><svg class="ct-i" aria-hidden="true"><use href="#i-pin"/></svg><span><span class="ct-k">Indirizzo</span><span class="ct-v">Via della Torre 17, Roncobilaccio<br>40035 Castiglione dei Pepoli (BO)</span></span></div>
+        <div class="ct"><svg class="ct-i" aria-hidden="true"><use href="#i-clock"/></svg><span><span class="ct-k">Quando</span><span class="ct-v">Dal lunedì al venerdì, su appuntamento</span></span></div>
+        <a class="blk dirs" href="https://www.google.com/maps/dir/?api=1&amp;destination=Via+della+Torre+17,+40035+Castiglione+dei+Pepoli+BO" target="_blank" rel="noopener">Indicazioni stradali</a>
+        <p class="arrive">A 2 km dal casello A1 di Roncobilaccio, 35 km da Firenze e 45 da Bologna. Dalla strada provinciale sono circa 200 metri di discesa verso il fiume, da fare a piedi o con un 4x4.</p>
       </div>
     </div>
   </section>
@@ -263,7 +290,7 @@
     </ul>
     <ul>
       <li><a href="#home" data-contact>Contatti</a></li>
-      <li><a href="#home" data-contact>Vieni a trovarci</a></li>
+      <li><a href="#home" data-go="home" data-to="visita">Vieni a trovarci</a></li>
       <li><a href="#home" data-contact>Confezioni regalo</a></li>
       <li><a href="#home" data-open-promo>Offerte della settimana</a></li>
     </ul>

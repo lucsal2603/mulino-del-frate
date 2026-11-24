@@ -172,6 +172,9 @@ const scenes = {
 
     gsap.fromTo('#bannerImg', { yPercent: -8, scale: 1.1 }, { yPercent: 8, scale: 1, ease: 'none', scrollTrigger: { trigger: '#bannerBox', start: 'top bottom', end: 'bottom top', scrub: true } });
     linesIn($('#bannerTitle'));
+    giantIn($('#visitaTitle'));
+    gsap.from('.contacts > *', { y: 30, opacity: 0, stagger: .07, duration: 1, ease: 'expo.out', clearProps: 'all', scrollTrigger: { trigger: '.contacts', start: 'top 85%' } });
+    gsap.fromTo('.map-box', { clipPath: 'inset(12% 8% 12% 8% round 16px)' }, { clipPath: 'inset(0% 0% 0% 0% round 16px)', ease: 'none', scrollTrigger: { trigger: '.map-box', start: 'top 95%', end: 'top 45%', scrub: true } });
     gsap.from('.banner .oval', { scale: .6, opacity: 0, duration: 1.1, ease: 'back.out(1.7)', scrollTrigger: { trigger: '.banner .oval', start: 'top 92%' } });
   },
   bottega() {
@@ -606,6 +609,38 @@ let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTime
     });
     document.documentElement.addEventListener('pointerleave', () => cur.classList.add('off'));
   }
+}
+
+
+/* ================= mappa (Leaflet + OpenStreetMap), caricata solo quando ci si avvicina ================= */
+{
+  // posizione indicativa: fine di Via la Torre, verso il torrente Gambellato (da confermare con Lucilla)
+  const MULINO = [44.1225, 11.2212];
+  let started = false;
+  const load = (tag, attrs) => new Promise((ok, ko) => { const el = document.createElement(tag); Object.assign(el, attrs); el.onload = ok; el.onerror = ko; document.head.appendChild(el); });
+  async function initMap() {
+    if (started) return; started = true;
+    try {
+      await Promise.all([
+        load('link', { rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css' }),
+        load('script', { src: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js' })
+      ]);
+      const touch = matchMedia('(pointer: coarse)').matches;
+      const map = L.map('map', { scrollWheelZoom: false, dragging: !touch, tap: false, zoomControl: true }).setView(MULINO, 14);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+      const icon = L.divIcon({ className: 'pin-mdf', iconSize: [54, 66], iconAnchor: [27, 64], popupAnchor: [0, -58],
+        html: '<svg viewBox="0 0 54 66"><path d="M27 64S4 40 4 25a23 23 0 0 1 46 0c0 15-23 39-23 39Z" fill="#f2b33d" stroke="#151310" stroke-width="2.5"/><g transform="translate(13 11) scale(.28)" color="#151310"><use href="#i-macina"/></g></svg>' });
+      L.marker(MULINO, { icon, title: 'Mulino del Frate' }).addTo(map)
+        .bindPopup('<b>Mulino del Frate</b>Via della Torre 17, Roncobilaccio<br>sul torrente Gambellato').openPopup();
+      // la mappa trascinabile con un dito solo bloccherebbe lo scroll della pagina: su touch si sposta con i pulsanti + e -
+      setTimeout(() => map.invalidateSize(), 400);
+    } catch (e) { $('#mapFallback').hidden = false; }
+  }
+  const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) { io.disconnect(); initMap(); } }, { rootMargin: '600px' });
+  io.observe($('#map'));
 }
 
 /* ================= avvio ================= */

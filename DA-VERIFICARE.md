@@ -22,6 +22,8 @@ Bozza di restyling a cura di Luca Salvemini. Struttura e animazioni riprese da f
   - Condizioni di vendita, informativa privacy e diritto di recesso di 14 giorni: i testi vanno scritti.
 
 ## Contenuti
+- **Posizione sulla mappa**: OpenStreetMap non conosce "Via della Torre 17". Il segnaposto è messo a mano in fondo a Via la Torre, verso il torrente Gambellato. Serve la posizione esatta da Lucilla, per esempio un link di Google Maps condiviso dal Mulino. Il pulsante "Indicazioni stradali" usa invece l'indirizzo completo su Google Maps.
+- **WhatsApp**: nella sezione contatti c'è il pulsante WhatsApp sul numero +39 348 250 2474. Va verificato che Lucilla usi WhatsApp su quel numero.
 - Le date della storia (XI e XII secolo, tra 1200 e 1300, dopo il 1480) sono riprese dal testo attuale, che le presenta come ipotesi.
 - Orari: "dal lunedì al venerdì su appuntamento" (dal sito attuale).
 - Social: c'è solo Facebook. Instagram?
