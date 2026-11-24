@@ -122,6 +122,10 @@ const scenes = {
     heroSplit = new SplitText('#heroTitle', { type: 'chars', mask: 'chars' });
     gsap.from(heroSplit.chars, { yPercent: 110, duration: 1.6, ease: 'expo.out', stagger: .045, delay: first ? 1.55 : .35 });
     gsap.from('#heroImg', { scale: 1.25, duration: 2.4, ease: 'expo.out', delay: first ? 1.3 : .2 });
+    gsap.from('#heroCta > *', { y: 40, opacity: 0, duration: 1.2, ease: 'expo.out', stagger: .12, delay: first ? 2.2 : .9 });
+    gsap.to('#heroCta', { yPercent: -60, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: '45% top', scrub: true } });
+    // pulsante Shop fisso: compare appena si lascia l'hero
+    ScrollTrigger.create({ trigger: '.about', start: 'top 70%', end: 'max', onEnter: () => floatShop(true), onLeaveBack: () => floatShop(false) });
     gsap.to('#heroImg', { yPercent: 14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
     gsap.to('#heroTitle', { yPercent: 40, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
 
@@ -207,8 +211,12 @@ function parse() {
   if (h.startsWith('prodotto-')) return { view: 'prodotto', id: h.slice(9) };
   return { view: 'home' };
 }
+const shopFloat = $('#shopFloat');
+function floatShop(on) { gsap.to(shopFloat, { autoAlpha: on ? 1 : 0, y: on ? 0 : 30, duration: on ? .7 : .35, ease: on ? 'back.out(1.6)' : 'power2.in', overwrite: true }); }
 function show(r, first) {
   if (ctx) ctx.revert();
+  floatShop(false);
+  $$('.shop-link').forEach(l => l.toggleAttribute('aria-current', r.view === 'bottega'));
   $$('.view').forEach(v => v.hidden = v.dataset.view !== r.view);
   if (r.view === 'prodotto') renderProduct(r.id);
   if (r.view === 'bottega') { renderGrid(); $$('#filters button').forEach((b, i) => b.setAttribute('aria-pressed', i === 0)); }

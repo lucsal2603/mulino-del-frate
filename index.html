@@ -14,6 +14,7 @@
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12.1a1 1 0 0 1-1 .9H7.2a1 1 0 0 1-1-.9L5 8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14Zm0 0 7-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -29,7 +30,10 @@
 <header class="nav" id="nav">
   <button class="nav-side" id="menuBtn" aria-expanded="false" aria-controls="menu"><span class="burger" aria-hidden="true"><i></i><i></i></span><span class="nav-label" id="menuLabel">Menu</span></button>
   <a class="brand" href="#home" data-go="home" aria-label="Mulino del Frate, home"><span class="brand-name">Mulino del Frate</span><span class="brand-sub">Roncobilaccio</span></a>
-  <button class="nav-side right" data-open-cart aria-label="Apri il carrello"><span class="nav-label">Carrello</span><span class="badge" data-count>0</span></button>
+  <div class="nav-right">
+    <a class="shop-link" href="#bottega" data-go="bottega"><svg aria-hidden="true"><use href="#i-bag"/></svg>Shop</a>
+    <button class="nav-side right" data-open-cart aria-label="Apri il carrello"><span class="nav-label">Carrello</span><span class="badge" data-count>0</span></button>
+  </div>
 </header>
 
 <!-- MENU -->
@@ -37,7 +41,7 @@
   <div class="menu-inner">
     <ul>
       <li><a href="#home" data-go="home"><span>Home</span></a></li>
-      <li><a href="#bottega" data-go="bottega"><span>La bottega</span></a></li>
+      <li><a href="#bottega" data-go="bottega"><span>Shop online</span></a></li>
       <li><a href="#home" data-go="home" data-to="storia"><span>La nostra storia</span></a></li>
       <li><a href="#home" data-contact><span>Contatti</span></a></li>
     </ul>
@@ -57,6 +61,7 @@
     <div class="hero-frame" id="heroFrame">
       <div class="hero-img"><img src="assets/hero-insegna.jpg" alt="L'insegna in legno del Mulino del Frate, podere La Vanella, sulle colline dell'Appennino" id="heroImg"></div>
       <h1 class="hero-title fit" id="heroTitle">Mulino del Frate</h1>
+      <div class="hero-cta" id="heroCta"><p>Miele, Castagnella, creme e rimedi naturali fatti al Mulino. Ordinali online.</p><a href="#bottega" data-go="bottega" class="oval light">Vai allo shop</a></div>
     </div>
   </section>
 
@@ -174,6 +179,7 @@
 </aside>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true"><div class="box" id="modalBox"></div></div>
+<a class="shop-float" id="shopFloat" href="#bottega" data-go="bottega"><svg aria-hidden="true"><use href="#i-bag"/></svg>Shop</a>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="draft">Bozza di restyling, non è il sito ufficiale</div>
 

@@ -56,6 +56,21 @@ p{margin:0}
 .brand-sub{font:500 9px/1 var(--sans);text-transform:uppercase;letter-spacing:.12em;opacity:.6;margin-top:4px;height:9px;overflow:hidden}
 @media(max-width:600px){.brand-name{font-size:19px}.nav{padding:0 14px}.nav-side .nav-label{display:none}.nav-side.right .nav-label{display:none}}
 
+/* ---------------- accessi allo shop ---------------- */
+.nav-right{justify-self:end;display:flex;align-items:center;gap:22px}
+.shop-link{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 16px;border-radius:999px;background:var(--cream);color:var(--black);font:600 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.05em;transition:background .35s,transform .5s var(--ease)}
+.shop-link svg{width:15px;height:15px}
+.shop-link:hover,.shop-link[aria-current]{background:var(--honey)}
+.shop-link:hover{transform:scale(1.06)}
+.hero-cta{position:absolute;left:0;right:0;bottom:clamp(24px,5vh,56px);display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;color:var(--cream);padding:0 20px;z-index:1}
+.hero-cta p{font:400 clamp(20px,1.9vw,28px)/1.2 var(--serif);max-width:30ch;text-shadow:0 2px 18px rgba(20,15,10,.55)}
+.hero-cta .oval{background:rgba(20,15,10,.35);backdrop-filter:blur(4px);min-width:190px;min-height:52px;font-size:12px}
+.hero-img::before{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(0deg,rgba(30,24,18,.55),rgba(30,24,18,0));z-index:1}
+.shop-float{position:fixed;right:18px;bottom:18px;z-index:58;display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 24px;border-radius:999px;background:var(--black);color:var(--cream);font:600 12px/1 var(--sans);text-transform:uppercase;letter-spacing:.05em;box-shadow:0 12px 30px rgba(0,0,0,.25);visibility:hidden;opacity:0;transition:background .35s}
+.shop-float svg{width:18px;height:18px}
+.shop-float:hover{background:var(--brown)}
+@media(max-width:600px){.nav-right{gap:10px}.shop-link{padding:0 12px}.shop-float{right:12px;bottom:12px}}
+
 /* ---------------- menu ---------------- */
 .menu{position:fixed;top:var(--nav);left:0;right:0;bottom:0;z-index:55;background:var(--black);color:var(--cream);clip-path:inset(0 0 100% 0);visibility:hidden}
 .menu-inner{height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:40px 24px 30px;max-width:1400px;margin:0 auto}
