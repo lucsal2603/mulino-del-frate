@@ -133,7 +133,7 @@ const scenes = {
     gsap.to('#heroCta', { yPercent: -60, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: '45% top', scrub: true } });
     // pulsante Shop fisso: compare appena si lascia l'hero
     ScrollTrigger.create({ trigger: '.about', start: 'top 70%', end: 'max', onEnter: () => floatShop(true), onLeaveBack: () => floatShop(false) });
-    if (!seen()) ScrollTrigger.create({ trigger: '#antico', start: 'bottom 60%', once: true, onEnter: () => setTimeout(openPromo, 600) });
+    if (!seen()) ScrollTrigger.create({ trigger: '#antico', start: 'bottom 60%', once: true, onEnter: () => setTimeout(() => openPromo(), 600) });
     armPromo();
     gsap.to('#heroImg', { yPercent: 14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
     gsap.to('#heroTitle', { yPercent: 40, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
@@ -401,8 +401,10 @@ function formModal(kind) {
 /* ================= pannello "questa settimana" (offerte / più amati) ================= */
 const promo = $('#promo');
 let promoOpen = false, promoTab = 'sale';
-const seen = () => { try { return sessionStorage.getItem('mdf-promo') === '1'; } catch (e) { return false; } };
-const markSeen = () => { try { sessionStorage.setItem('mdf-promo', '1'); } catch (e) {} };
+// il pannello compare da solo una volta sola: poi resta chiuso, anche ricaricando (si riapre solo dal footer)
+let promoShown = false;
+const seen = () => { if (promoShown) return true; try { return localStorage.getItem('mdf-promo-visto') === '1'; } catch (e) { return false; } };
+const markSeen = () => { promoShown = true; try { localStorage.setItem('mdf-promo-visto', '1'); } catch (e) {} };
 function promoList() {
   const ids = promoTab === 'sale' ? Object.keys(SALE) : TOP;
   $('#promoList').innerHTML = ids.map(byId).map(p => `<li class="pitem">
@@ -412,14 +414,16 @@ function promoList() {
   $$('#promo [data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === promoTab));
   if (!RM) gsap.from('#promoList .pitem', { x: 40, opacity: 0, stagger: .07, duration: .7, ease: 'expo.out' });
 }
-function openPromo() {
+function openPromo(force) {
   if (promoOpen || modalOpen || drawerOpen || menuOpen) return;
+  if (!force && seen()) return;
+  clearTimeout(promoTimer);
   promoOpen = true; markSeen(); promo.setAttribute('aria-hidden', 'false'); promoList();
   gsap.set(promo, { visibility: 'visible' });
   gsap.fromTo(promo, { xPercent: 110, rotation: 3 }, { xPercent: 0, rotation: 0, duration: RM ? 0 : 1.1, ease: 'expo.out' });
 }
 function closePromo() {
-  if (!promoOpen) return; promoOpen = false; promo.setAttribute('aria-hidden', 'true');
+  if (!promoOpen) return; promoOpen = false; markSeen(); clearTimeout(promoTimer); promo.setAttribute('aria-hidden', 'true');
   gsap.to(promo, { xPercent: 110, duration: RM ? 0 : .6, ease: 'expo.in', onComplete: () => gsap.set(promo, { visibility: 'hidden' }) });
 }
 let promoTimer = null;
@@ -549,7 +553,7 @@ document.addEventListener('click', e => {
   if (t.matches('[data-qv-q]')) { const q = $('#qvQty'); q.textContent = Math.max(1, +q.textContent + +t.dataset.qvQ); gsap.fromTo(q, { scale: 1.5 }, { scale: 1, duration: .6, ease: 'elastic.out(1,.4)' }); return; }
   if (t.matches('[data-qv-add]')) { const el = $('#qvJar'), q = +$('#qvQty').textContent; closeModal(); addToCart(t.dataset.qvAdd, q, el); return; }
   if (t.matches('[data-qv-page]')) { const id = t.dataset.qvPage; closeModal(); setTimeout(() => go('prodotto-' + id), 300); return; }
-  if (t.matches('[data-open-promo]')) { e.preventDefault(); openPromo(); return; }
+  if (t.matches('[data-open-promo]')) { e.preventDefault(); openPromo(true); return; }
   if (t.matches('[data-add]')) { addToCart(t.dataset.add, +$('#qty').textContent, $('.pdp-stage .float')); return; }
   if (t.matches('[data-q]')) { const q = $('#qty'); q.textContent = Math.max(1, +q.textContent + +t.dataset.q); gsap.fromTo(q, { scale: 1.5 }, { scale: 1, duration: .6, ease: 'elastic.out(1,.4)' }); return; }
   if (t.matches('[data-inc]')) { cart[t.dataset.inc]++; save(); renderCart(); return; }
