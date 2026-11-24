@@ -13,6 +13,7 @@ Bozza di restyling a cura di Luca Salvemini. Struttura e animazioni riprese da f
   - Il retro delle confezioni non si vede in nessuna foto, quindi nel 3D il retro è senza etichetta.
   - La riga "Confez. c/o Apicoltura Girotti Castelmaggiore" è sulla Castagnella. Sugli altri prodotti l'ho ripetuta perché sembra la stessa, ma va verificata, soprattutto per la cosmesi.
   - Con le foto vere del fronte e del retro di ogni etichetta, i modelli diventano identici.
+- **Offerte e più amati** (pannello "Questa settimana al Mulino" e bollini nello shop): sono **dati di esempio**. In offerta al -15%: miele millefiori, unguento propoli e polline, maschera all'argilla. Tra i più amati: Castagnella, propoli spray, crema propoli e calendula. Servono i dati veri: quali prodotti sono in sconto, con che percentuale e per quanto tempo, e quali si vendono di più. Nel sito definitivo vanno collegati allo shop online.
 - **Pagamento e spedizione**: da definire.
 
 ## Contenuti

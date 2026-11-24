@@ -267,12 +267,26 @@ function build(logo) {
     m.mats = []; m.g.traverse(o => { if (o.material && !m.mats.includes(o.material)) { o.material.userData.base = o.material.opacity; o.material.userData.tr = o.material.transparent; m.mats.push(o.material); } });
   });
 }
+// inquadratura esatta: proietta il cilindro che contiene il prodotto (già ruotato/inclinato)
+// e regola distanza e centro finché sta tutto nel riquadro, con il margine richiesto
+const RIM = Array.from({ length: 24 }, (_, i) => [Math.cos(i / 24 * Math.PI * 2), Math.sin(i / 24 * Math.PI * 2)]);
+const _v = new THREE.Vector3();
 function frameCamera(cam, m, aspect, pad = 1.1) {
   cam.aspect = aspect; cam.fov = 18; cam.updateProjectionMatrix();
-  const half = Math.max(m.h / 2, (m.r * 1.12) / aspect) * pad;
-  const d = half / Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
-  const el = THREE.MathUtils.degToRad(7);
-  cam.position.set(0, Math.sin(el) * d, Math.cos(el) * d); cam.lookAt(0, -m.h * .015, 0);
+  const t = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)), el = THREE.MathUtils.degToRad(7);
+  let d = Math.max(m.h / 2, (m.r * 1.12) / aspect) * pad / t, cy = 0;
+  m.pivot.updateMatrixWorld(true);
+  for (let it = 0; it < 3; it++) {
+    cam.position.set(0, cy + Math.sin(el) * d, Math.cos(el) * d); cam.lookAt(0, cy, 0); cam.updateMatrixWorld();
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (const [c, s] of RIM) for (const y of [-m.h / 2, m.h / 2]) {
+      _v.set(c * m.r, y, s * m.r).applyMatrix4(m.pivot.matrixWorld).project(cam);
+      x0 = Math.min(x0, _v.x); x1 = Math.max(x1, _v.x); y0 = Math.min(y0, _v.y); y1 = Math.max(y1, _v.y);
+    }
+    cy += (y0 + y1) / 2 * d * t;
+    d *= Math.max((x1 - x0) / 2, (y1 - y0) / 2) * pad;
+  }
+  cam.position.set(0, cy + Math.sin(el) * d, Math.cos(el) * d); cam.lookAt(0, cy, 0);
 }
 function setOpacity(m, op) {
   m.mats.forEach(mt => { const tr = op < .999 || mt.userData.tr; if (mt.transparent !== tr) { mt.transparent = tr; mt.needsUpdate = true; } mt.opacity = mt.userData.base * op; });

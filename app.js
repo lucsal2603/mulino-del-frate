@@ -29,7 +29,13 @@ const ERE = [
   { when: 'Oggi', t: 'Lucilla e Lorenzo', img: 'apiario.jpg', d: "Lei erborista, lui medico veterinario. Hanno ristrutturato con pietra serena, castagno, quercia e sabbia di fiume, rispettando il lavoro degli antichi. Con loro due cani, tre gatti e le api." },
   { when: 'Sul sentiero', t: 'CAI 17 e Via degli Dei', img: 'erbe.jpg', d: "Il Mulino è sul sentiero 17 del CAI di Bologna e sull'Alta Via dei Parchi, a poca distanza dalla Via degli Dei. Ancora oggi qui si arriva a piedi." }
 ];
+// offerte e più venduti: dati di esempio per la bozza (vedi DA-VERIFICARE.md)
+const SALE = { miele: .15, polline: .15, maschera: .15 };
+const TOP = ['castagnella', 'propoli', 'calendula'];
 const byId = id => P.find(p => p.id === id);
+const cost = p => SALE[p.id] ? Math.round(p.price * (1 - SALE[p.id]) * 10) / 10 : p.price;
+const priceHTML = p => SALE[p.id] ? `<s>${eur(p.price)}</s> <b>${eur(cost(p))}</b>` : eur(p.price);
+const flag = p => SALE[p.id] ? `<span class="flag sale">-${Math.round(SALE[p.id] * 100)}%</span>` : TOP.includes(p.id) ? '<span class="flag top">Tra i più amati</span>' : '';
 const catName = id => (CATS.find(c => c.id === id) || {}).name || '';
 const eur = n => '€ ' + n.toFixed(2).replace('.', ',');
 const src = p => `assets/${p.img}.webp`;
@@ -55,7 +61,7 @@ const scrollToEl = el => lenis ? lenis.scrollTo(el, { offset: -60, duration: 1.8
 const tags = () => `<div class="tags"><span><svg><use href="#i-leaf"/></svg>Naturale</span><span><svg><use href="#i-hand"/></svg>Fatto a mano</span></div>`;
 const prodHTML = p => `<article class="prod" data-prod="${p.id}" tabindex="0" aria-label="${p.name}">
   <div class="stage">${jarBox(p)}</div>
-  ${tags()}<h3>${p.name}</h3><div class="meta">${eur(p.price)}</div><span class="pill">Acquista ora</span></article>`;
+  ${flag(p)}${tags()}<h3>${p.name}</h3><div class="meta">${priceHTML(p)}</div><span class="pill">Acquista ora</span></article>`;
 const packHTML = `<article class="pack"><div class="pack-img"><img src="assets/cosmesi.jpg" alt="Vasetti e flaconi del Mulino del Frate su un vassoio di vimini"></div>
   <div class="pack-copy"><h3>Confezione regalo</h3><p>La componiamo noi: miele, tisane, una crema dal laboratorio di Lucilla. Dicci per chi è e quanto vuoi spendere, e prepariamo una scatola su misura.</p><button class="blk" data-gift>Chiedi una confezione</button></div></article>`;
 
@@ -126,6 +132,8 @@ const scenes = {
     gsap.to('#heroCta', { yPercent: -60, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: '45% top', scrub: true } });
     // pulsante Shop fisso: compare appena si lascia l'hero
     ScrollTrigger.create({ trigger: '.about', start: 'top 70%', end: 'max', onEnter: () => floatShop(true), onLeaveBack: () => floatShop(false) });
+    if (!seen()) ScrollTrigger.create({ trigger: '#antico', start: 'bottom 60%', once: true, onEnter: () => setTimeout(openPromo, 600) });
+    armPromo();
     gsap.to('#heroImg', { yPercent: 14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
     gsap.to('#heroTitle', { yPercent: 40, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
 
@@ -194,7 +202,7 @@ function renderProduct(id) {
     <h1>${p.name}</h1>${tags()}
     <p class="desc">${p.d}</p>
     <div class="rows">${p.rows.map(r => `<div><b>${r[0]}</b>${r[1]}</div>`).join('')}<div><b>Formato</b>Da confermare</div></div>
-    <div class="price">${eur(p.price)}</div>
+    <div class="price">${priceHTML(p)}${SALE[p.id] ? ` <span class="flag sale">-${Math.round(SALE[p.id] * 100)}%</span>` : ''}</div>
     <div class="buy"><div class="step"><button data-q="-1" aria-label="Togli uno">-</button><span id="qty">1</span><button data-q="1" aria-label="Aggiungi uno">+</button></div><button class="blk" data-add="${p.id}">Aggiungi al carrello</button></div>
     <p class="small-note">Ritiro al Mulino su appuntamento o spedizione da concordare.</p>
   </div>`;
@@ -216,6 +224,8 @@ function floatShop(on) { gsap.to(shopFloat, { autoAlpha: on ? 1 : 0, y: on ? 0 :
 function show(r, first) {
   if (ctx) ctx.revert();
   floatShop(false);
+  closePromo();
+  if (r.view !== 'home') clearTimeout(promoTimer);
   $$('.shop-link').forEach(l => l.toggleAttribute('aria-current', r.view === 'bottega'));
   $$('.view').forEach(v => v.hidden = v.dataset.view !== r.view);
   if (r.view === 'prodotto') renderProduct(r.id);
@@ -275,13 +285,13 @@ let cart = {};
 try { cart = JSON.parse(localStorage.getItem('mdf-cart-2') || '{}') || {}; } catch (e) { cart = {}; }
 const save = () => { try { localStorage.setItem('mdf-cart-2', JSON.stringify(cart)); } catch (e) {} };
 const count = () => Object.values(cart).reduce((a, b) => a + b, 0);
-const total = () => Object.entries(cart).reduce((s, [id, q]) => s + (byId(id) ? byId(id).price * q : 0), 0);
+const total = () => Object.entries(cart).reduce((s, [id, q]) => s + (byId(id) ? cost(byId(id)) * q : 0), 0);
 const drawer = $('#drawer'), scrim = $('#scrim');
 let drawerOpen = false, modalOpen = false;
 function renderCart() {
   $$('[data-count]').forEach(c => c.textContent = count());
   const ids = Object.keys(cart).filter(byId);
-  $('#lines').innerHTML = ids.length ? ids.map(id => { const p = byId(id); return `<div class="cline"><div class="th"><img src="${snapSrc(p)}" data-snap="${p.id}" alt=""></div><div><h4>${p.name}</h4><div class="step"><button data-dec="${id}" aria-label="Togli uno">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Aggiungi uno">+</button></div></div><span class="p">${eur(p.price * cart[id])}</span></div>`; }).join('')
+  $('#lines').innerHTML = ids.length ? ids.map(id => { const p = byId(id); return `<div class="cline"><div class="th"><img src="${snapSrc(p)}" data-snap="${p.id}" alt=""></div><div><h4>${p.name}</h4><div class="step"><button data-dec="${id}" aria-label="Togli uno">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Aggiungi uno">+</button></div></div><span class="p">${eur(cost(p) * cart[id])}</span></div>`; }).join('')
     : `<div class="empty">Il carrello è vuoto.<br><a href="#bottega" data-go="bottega" class="oval">Vai alla bottega</a></div>`;
   $('#total').textContent = eur(total());
 }
@@ -352,12 +362,42 @@ function formModal(kind) {
   $('#mform').addEventListener('submit', ev => {
     ev.preventDefault();
     const f = new FormData(ev.target);
-    const lines = kind === 'order' ? Object.entries(cart).filter(([id]) => byId(id)).map(([id, q]) => `${q} x ${byId(id).name}  ${eur(byId(id).price * q)}`) : [];
+    const lines = kind === 'order' ? Object.entries(cart).filter(([id]) => byId(id)).map(([id, q]) => `${q} x ${byId(id).name}  ${eur(cost(byId(id)) * q)}`) : [];
     const txt = `${titles[kind]}, Mulino del Frate\n\nNome: ${f.get('n')}\nContatto: ${f.get('c')}\n` + (lines.length ? `\n${lines.join('\n')}\nTotale: ${eur(total())}\n` : '') + (f.get('m') ? `\n${f.get('m')}` : '');
     $('#mout').innerHTML = `<p style="margin-top:18px"><b>Questa è una bozza: il messaggio non è stato inviato.</b> Nel sito definitivo arriverà direttamente a Lucilla. Per ora puoi copiarlo e mandarlo a mulinodelfrate@gmail.com o al +39 348 250 2474.</p><div class="summary" id="sum"></div><button class="blk" id="copy">Copia il testo</button>`;
     $('#sum').textContent = txt; ev.target.remove();
     $('#copy').addEventListener('click', () => { navigator.clipboard && navigator.clipboard.writeText(txt).then(() => toast('Testo copiato'), () => toast('Copia non disponibile: seleziona il testo')); });
   });
+}
+
+/* ================= pannello "questa settimana" (offerte / più amati) ================= */
+const promo = $('#promo');
+let promoOpen = false, promoTab = 'sale';
+const seen = () => { try { return sessionStorage.getItem('mdf-promo') === '1'; } catch (e) { return false; } };
+const markSeen = () => { try { sessionStorage.setItem('mdf-promo', '1'); } catch (e) {} };
+function promoList() {
+  const ids = promoTab === 'sale' ? Object.keys(SALE) : TOP;
+  $('#promoList').innerHTML = ids.map(byId).map(p => `<li class="pitem">
+    <button class="pthumb" data-promo-go="${p.id}" aria-label="Apri ${p.name}"><img src="${snapSrc(p)}" data-snap="${p.id}" alt=""></button>
+    <div class="pinfo"><button class="pname" data-promo-go="${p.id}">${p.name}</button><div class="pprice">${priceHTML(p)}</div></div>
+    <button class="padd" data-promo-add="${p.id}" aria-label="Aggiungi ${p.name} al carrello"><svg><use href="#i-bag"/></svg></button></li>`).join('');
+  $$('#promo [data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === promoTab));
+  if (!RM) gsap.from('#promoList .pitem', { x: 40, opacity: 0, stagger: .07, duration: .7, ease: 'expo.out' });
+}
+function openPromo() {
+  if (promoOpen || modalOpen || drawerOpen || menuOpen) return;
+  promoOpen = true; markSeen(); promo.setAttribute('aria-hidden', 'false'); promoList();
+  gsap.set(promo, { visibility: 'visible' });
+  gsap.fromTo(promo, { xPercent: 110, rotation: 3 }, { xPercent: 0, rotation: 0, duration: RM ? 0 : 1.1, ease: 'expo.out' });
+}
+function closePromo() {
+  if (!promoOpen) return; promoOpen = false; promo.setAttribute('aria-hidden', 'true');
+  gsap.to(promo, { xPercent: 110, duration: RM ? 0 : .6, ease: 'expo.in', onComplete: () => gsap.set(promo, { visibility: 'hidden' }) });
+}
+let promoTimer = null;
+function armPromo() {
+  if (seen()) return;
+  clearTimeout(promoTimer); promoTimer = setTimeout(() => current === 'home' && openPromo(), 20000);
 }
 
 /* ================= toast ================= */
@@ -369,6 +409,11 @@ function toast(m) { tEl.textContent = m; tTl && tTl.kill(); tTl = gsap.timeline(
 document.addEventListener('click', e => {
   const t = e.target.closest('a, button, [data-prod], [data-era]');
   if (!t) return;
+  if (t.matches('[data-tab]')) { promoTab = t.dataset.tab; promoList(); return; }
+  if (t.matches('[data-close-promo]')) { closePromo(); return; }
+  if (t.matches('[data-promo-add]')) { addToCart(t.dataset.promoAdd, 1, $('img', t.closest('.pitem'))); return; }
+  if (t.matches('[data-promo-go]')) { closePromo(); go('prodotto-' + t.dataset.promoGo); return; }
+  if (t.matches('[data-open-promo]')) { e.preventDefault(); openPromo(); return; }
   if (t.matches('[data-add]')) { addToCart(t.dataset.add, +$('#qty').textContent, $('.pdp-stage .float')); return; }
   if (t.matches('[data-q]')) { const q = $('#qty'); q.textContent = Math.max(1, +q.textContent + +t.dataset.q); gsap.fromTo(q, { scale: 1.5 }, { scale: 1, duration: .6, ease: 'elastic.out(1,.4)' }); return; }
   if (t.matches('[data-inc]')) { cart[t.dataset.inc]++; save(); renderCart(); return; }
@@ -393,11 +438,41 @@ document.addEventListener('click', e => {
   if (t.matches('[data-to]')) { e.preventDefault(); const el = document.getElementById(t.dataset.to); el && scrollToEl(el); return; }
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (modalOpen) closeModal(); else if (drawerOpen) closeCart(); else if (menuOpen) toggleMenu(false); }
+  if (e.key === 'Escape') { if (promoOpen) closePromo(); else if (modalOpen) closeModal(); else if (drawerOpen) closeCart(); else if (menuOpen) toggleMenu(false); }
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-prod], [data-era]')) { e.preventDefault(); e.target.click(); }
 });
 scrim.addEventListener('click', () => { if (modalOpen) closeModal(); else closeCart(); });
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (!$('#v-home').hidden) fitHero(); ScrollTrigger.refresh(); }, 200); });
+
+
+/* ================= puntatore ================= */
+{
+  const cur = $('#cursor');
+  if (!RM && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.documentElement.classList.add('has-cursor');
+    const lab = $('.c-label', cur);
+    const qx = gsap.quickTo(cur, 'x', { duration: .16, ease: 'power3' }), qy = gsap.quickTo(cur, 'y', { duration: .16, ease: 'power3' });
+    const drag = '<svg viewBox="0 0 34 20" aria-hidden="true"><path d="M4 10h26M4 10l5-5M4 10l5 5M30 10l-5-5M30 10l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const RULES = [['.pdp-stage .float', drag + 'Trascina'], ['.prod, .shelf .jarbox, .pthumb', 'Apri'], ['.card', 'Leggi'], ['#jarRise', 'Castagnella']];
+    let first = true;
+    addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      if (first) { gsap.set(cur, { x: e.clientX, y: e.clientY }); first = false; }
+      qx(e.clientX); qy(e.clientY); cur.classList.remove('off');
+    }, { passive: true });
+    document.addEventListener('pointerover', e => {
+      const t = e.target;
+      const rule = RULES.find(([sel]) => t.closest(sel));
+      cur.classList.toggle('label', !!rule);
+      if (rule) lab.innerHTML = rule[1];
+      cur.classList.toggle('link', !rule && !!t.closest('a, button, [data-f], [data-tab], label'));
+      cur.classList.toggle('text', !!t.closest('input, textarea'));
+    });
+    document.addEventListener('pointerdown', () => cur.classList.add('down'));
+    document.addEventListener('pointerup', () => cur.classList.remove('down'));
+    document.documentElement.addEventListener('pointerleave', () => cur.classList.add('off'));
+  }
+}
 
 /* ================= avvio ================= */
 renderCart();

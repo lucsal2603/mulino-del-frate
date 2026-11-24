@@ -152,6 +152,7 @@
       <li><a href="#home" data-contact>Contatti</a></li>
       <li><a href="#home" data-contact>Vieni a trovarci</a></li>
       <li><a href="#home" data-contact>Confezioni regalo</a></li>
+      <li><a href="#home" data-open-promo>Offerte della settimana</a></li>
     </ul>
     <ul class="muted">
       <li>Termini e condizioni</li>
@@ -179,8 +180,17 @@
 </aside>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true"><div class="box" id="modalBox"></div></div>
+<aside class="promo" id="promo" aria-label="Questa settimana al Mulino" aria-hidden="true">
+  <button class="x" data-close-promo aria-label="Chiudi"><svg><use href="#i-x"/></svg></button>
+  <p class="kicker">Questa settimana al Mulino</p>
+  <h2>Dalla bottega,<br><em>scelti per te</em></h2>
+  <div class="ptabs" role="tablist"><button role="tab" data-tab="sale" aria-selected="true">In offerta</button><button role="tab" data-tab="top" aria-selected="false">I più amati</button></div>
+  <ul class="plist" id="promoList"></ul>
+  <a href="#bottega" data-go="bottega" class="blk pgo" data-close-promo-after>Vai allo shop</a>
+</aside>
 <a class="shop-float" id="shopFloat" href="#bottega" data-go="bottega"><svg aria-hidden="true"><use href="#i-bag"/></svg>Shop</a>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><span class="c-ring"></span><span class="c-label"></span></div>
 <div class="draft">Bozza di restyling, non è il sito ufficiale</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>

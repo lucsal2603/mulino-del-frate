@@ -301,4 +301,51 @@ p{margin:0}
   .jar-rise{margin-top:-22vw}
   .film{padding:0 10px 10px}.banner{padding:0 10px 10px}
 }
+
+/* ---------------- pannello offerte / più amati ---------------- */
+.promo{position:fixed;right:18px;bottom:84px;z-index:65;width:min(380px,calc(100vw - 24px));max-height:calc(100svh - 160px);overflow:auto;background:var(--cream);color:var(--ink);border-radius:var(--r);padding:26px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.35);visibility:hidden}
+.promo .x{position:absolute;top:10px;right:10px}
+.promo .kicker{margin-bottom:12px}
+.promo h2{font-size:40px;line-height:.95;margin-bottom:18px}
+.ptabs{display:flex;gap:6px;margin-bottom:10px}
+.ptabs button{font:500 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.04em;padding:0 14px;min-height:34px;border-radius:999px;background:rgba(160,152,136,.22);transition:background .3s,color .3s}
+.ptabs button[aria-selected=true]{background:var(--ink);color:var(--cream)}
+.plist{list-style:none;margin:0 0 18px;padding:0}
+.pitem{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.1)}
+.pthumb{width:64px;height:76px;background:var(--sand);border-radius:6px;display:grid;place-items:center;overflow:hidden}
+.pthumb img{max-height:70px;max-width:56px;transition:transform .6s var(--ease)}
+.pitem:hover .pthumb img{transform:translateY(-4px) scale(1.06)}
+.pname{font:italic 400 21px/1.05 var(--serif);text-align:left}
+.pname:hover{color:var(--brown)}
+.pprice{font:500 12px/1 var(--sans);margin-top:6px}
+.padd{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(0,0,0,.25);transition:background .3s,color .3s,transform .5s var(--ease)}
+.padd:hover{background:var(--ink);color:var(--cream);transform:scale(1.08)}
+.padd svg{width:17px;height:17px}
+.promo .pgo{width:100%}
+s{opacity:.55;font-weight:400}
+.meta b,.pprice b,.price b{font-weight:inherit;color:#a1421c}
+.flag{display:inline-block;font:600 10px/1 var(--sans);text-transform:uppercase;letter-spacing:.05em;padding:6px 9px;border-radius:999px;margin-bottom:12px}
+.flag.sale{background:#a1421c;color:var(--cream)}
+.flag.top{background:var(--ink);color:var(--cream)}
+.price .flag{vertical-align:middle;margin:0 0 0 8px}
+@media(max-width:600px){.promo{right:12px;left:12px;width:auto;bottom:76px}}
+
+
+/* ---------------- puntatore: ovale in filo come i bottoni, etichetta sui prodotti ---------------- */
+.cursor{position:fixed;left:0;top:0;z-index:300;pointer-events:none;display:none}
+.has-cursor .cursor{display:block}
+@media (hover:hover) and (pointer:fine){
+  .has-cursor,.has-cursor *{cursor:none!important}
+  .has-cursor input,.has-cursor textarea{cursor:text!important}
+}
+.c-ring{position:absolute;left:0;top:0;width:24px;height:17px;margin:-8.5px 0 0 -12px;border:1.3px solid #efebe6;border-radius:50%;mix-blend-mode:difference;transition:width .45s var(--ease),height .45s var(--ease),margin .45s var(--ease),opacity .3s,background .3s}
+.c-label{position:absolute;left:0;top:0;transform:translate(-50%,-50%) scale(.4);opacity:0;white-space:nowrap;display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--cream);font:600 10.5px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;padding:12px 16px;border-radius:999px;transition:transform .5s var(--ease),opacity .3s}
+.c-label svg{width:20px;height:12px}
+.cursor.link .c-ring{width:58px;height:40px;margin:-20px 0 0 -29px;background:rgba(239,235,230,.15)}
+.cursor.label .c-ring{opacity:0}
+.cursor.label .c-label{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.cursor.down .c-ring{width:18px;height:13px;margin:-6.5px 0 0 -9px}
+.cursor.off{opacity:0}
+.cursor.text .c-ring{opacity:0}
+
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
