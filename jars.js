@@ -289,7 +289,8 @@ function frameCamera(cam, m, aspect, pad = 1.1) {
   cam.position.set(0, cy + Math.sin(el) * d, Math.cos(el) * d); cam.lookAt(0, cy, 0);
 }
 function setOpacity(m, op) {
-  m.mats.forEach(mt => { const tr = op < .999 || mt.userData.tr; if (mt.transparent !== tr) { mt.transparent = tr; mt.needsUpdate = true; } mt.opacity = mt.userData.base * op; });
+  // solo i materiali già trasparenti seguono l'opacità: gli altri non cambiano mai programma
+  m.mats.forEach(mt => { if (mt.userData.tr) mt.opacity = mt.userData.base * op; });
 }
 // colore del fondo dietro al prodotto: il vetro lo "vede" per trasparenza (pass di trasmissione)
 function bgOf(el) { for (let n = el; n && n !== document.documentElement; n = n.parentElement) { const c = getComputedStyle(n).backgroundColor; const m = c.match(/[\d.]+/g); if (m && (m.length < 4 || +m[3] > .5)) return new THREE.Color(`rgb(${m[0]},${m[1]},${m[2]})`); } return new THREE.Color(0xefebe6); }
@@ -305,11 +306,13 @@ function render() {
   const dt = Math.min(clock.getDelta(), .05);
   const W = innerWidth, H = innerHeight;
   renderer.setScissorTest(false); renderer.setRenderTarget(null); renderer.clear(); renderer.setScissorTest(true);
+  const qv = document.documentElement.classList.contains('qv-open') ? document.getElementById('modal') : null;
   for (const el of els) {
     const m = models[el.dataset.jar]; if (!m) continue;
     const r = el.getBoundingClientRect();
     if (r.width < 2 || r.height < 2 || r.bottom < 0 || r.top > H || r.right < 0 || r.left > W) continue;
-    const op = opacityOf(el); if (op < .02) continue;
+    const op = opacityOf(el); if (op < .5) continue;
+    if (qv && !qv.contains(el)) continue; // con la scheda rapida aperta si disegnano solo i prodotti al suo interno
     let st = state.get(el);
     if (!st) { st = { a: +(el.dataset.angle || 0), v: 0, drag: false, bg: bgOf(el) }; state.set(el, st); bindDrag(el, st); }
     const host = el.closest('.prod') || el;
@@ -385,6 +388,7 @@ async function start() {
   await Promise.all(['400 40px "Noto Sans"', '700 40px "Noto Sans"', '400 40px "Noto Serif"'].map(f => document.fonts.load(f)));
   const logo = await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = 'assets/logo-gallo.jpg'; });
   build(logo);
+  Object.values(models).forEach(m => m.pivot.visible = true); renderer.compile(scene, camera); Object.values(models).forEach(m => m.pivot.visible = false);
   makeSnaps(); fillSnaps();
   document.documentElement.classList.add('jars-on');
   addEventListener('resize', () => renderer.setSize(innerWidth, innerHeight));

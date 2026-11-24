@@ -65,7 +65,8 @@ const prodHTML = p => `<article class="prod" data-prod="${p.id}" tabindex="0" ar
 const packHTML = `<article class="pack"><div class="pack-img"><img src="assets/cosmesi.jpg" alt="Vasetti e flaconi del Mulino del Frate su un vassoio di vimini"></div>
   <div class="pack-copy"><h3>Confezione regalo</h3><p>La componiamo noi: miele, tisane, una crema dal laboratorio di Lucilla. Dicci per chi è e quanto vuoi spendere, e prepariamo una scatola su misura.</p><button class="blk" data-gift>Chiedi una confezione</button></div></article>`;
 
-$('#shelf').innerHTML = [...P, ...P.slice(0, 4)].map((p, i) => jarBox(p, `data-prod="${p.id}" data-angle="${i * 1.3}" data-speed=".5"`).replace('class="jarbox"', 'class="jarbox" tabindex="0"')).join('');
+// due giri identici di prodotti: il secondo prende il posto del primo e lo scaffale scorre all'infinito
+$('#shelf').innerHTML = [...P, ...P].map((p, i) => jarBox(p, `data-prod="${p.id}" data-angle="${(i % P.length) * 1.3}" data-speed=".5"`).replace('class="jarbox"', i < P.length ? 'class="jarbox" tabindex="0"' : 'class="jarbox" aria-hidden="true"')).join('');
 $('#cards').innerHTML = ERE.map((e, i) => `<article class="card" data-era="${i}" tabindex="0"><div class="ph"><img src="assets/${e.img}" alt="" loading="lazy"></div><h3>${e.t}</h3><p>${e.when}</p></article>`).join('');
 $('#filters').innerHTML = CATS.map((c, i) => `<button data-f="${c.id}" aria-pressed="${i === 0}">${c.name}</button>`).join('');
 
@@ -156,11 +157,17 @@ const scenes = {
     linesIn($('#sapori')); picsIn($('#sapori').parentElement);
     giantIn($('#bottegaTitle'));
     const shelf = $('#shelf');
-    gsap.fromTo(shelf, { x: () => innerWidth * .55 }, { x: () => -(shelf.scrollWidth - innerWidth * .45), ease: 'none', scrollTrigger: { trigger: '.shelf-wrap', start: 'top bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true } });
-    $$('img', shelf).forEach((im, i) => gsap.fromTo(im, { rotation: i % 2 ? -6 : 6 }, { rotation: i % 2 ? 6 : -6, ease: 'none', scrollTrigger: { trigger: '.shelf-wrap', start: 'top bottom', end: 'bottom top', scrub: true } }));
+    // scaffale in loop continuo: scorre da solo, accelera con la velocità dello scroll e cambia verso se si torna su
+    const loopW = () => (shelf.scrollWidth + parseFloat(getComputedStyle(shelf).columnGap || 0)) / 2;
+    const loop = gsap.fromTo(shelf, { x: 0 }, { x: () => -loopW(), duration: 38, ease: 'none', repeat: -1, invalidateOnRefresh: true });
+    loop.totalTime(38 * 500); // margine per poter girare anche all'indietro
+    let dir = 1;
+    ScrollTrigger.create({ trigger: '.shelf-wrap', start: 'top bottom', end: 'bottom top',
+      onUpdate: self => { dir = self.direction; const v = gsap.utils.clamp(-6, 6, self.getVelocity() / 250); gsap.to(loop, { timeScale: v || dir, duration: .25, overwrite: true, onComplete: () => gsap.to(loop, { timeScale: dir, duration: 1.2, ease: 'power2.out' }) }); } });
+    $$('.jarbox', shelf).forEach(j => { j.addEventListener('pointerenter', () => gsap.to(loop, { timeScale: .15 * dir, duration: .6 })); j.addEventListener('pointerleave', () => gsap.to(loop, { timeScale: dir, duration: .8 })); });
 
     giantIn($('#storiaTitle'));
-    gsap.to('#storiaTitle .glyph', { rotation: 360, ease: 'none', transformOrigin: '50% 50%', scrollTrigger: { trigger: '#storia', start: 'top bottom', end: 'bottom top', scrub: true } });
+    gsap.to('#storiaTitle .glyph', { rotation: 360, ease: 'none', transformOrigin: '50% 50%', duration: 6, repeat: -1 });
     gsap.from('#cards .card', { y: 140, opacity: 0, rotation: (i) => (i % 2 ? 8 : -8), duration: 1.3, ease: 'expo.out', stagger: .09, scrollTrigger: { trigger: '#cards', start: 'top 88%' }, clearProps: 'transform' });
 
     gsap.fromTo('#bannerImg', { yPercent: -8, scale: 1.1 }, { yPercent: 8, scale: 1, ease: 'none', scrollTrigger: { trigger: '#bannerBox', start: 'top bottom', end: 'bottom top', scrub: true } });
@@ -183,19 +190,19 @@ const scenes = {
     if (RM) return;
     const fl = $('.pdp-stage .float');
     const tl = { t: -.35, s: -3 }, setT = () => { fl.dataset.tilt = tl.t; fl.dataset.spin = tl.s; };
-    gsap.from(fl, { y: 220, opacity: 0, duration: 1.6, ease: 'expo.out', delay: .3 });
+    gsap.from(fl, { y: 220, duration: 1.6, ease: 'expo.out', delay: .3 });
     gsap.to(tl, { t: -.08, s: 0, duration: 2, ease: 'expo.out', delay: .3, onUpdate: setT });
     gsap.to(fl, { y: -16, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 1.9 });
     gsap.from('.hint', { y: 20, opacity: 0, duration: 1, ease: 'expo.out', delay: 1.4 });
     gsap.from('.pdp-info > *', { y: 30, opacity: 0, stagger: .06, duration: 1, ease: 'expo.out', delay: .35 });
     gsap.fromTo('#lifeImg', { yPercent: -10 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: '.life', start: 'top bottom', end: 'bottom top', scrub: true } });
     linesIn($('.also-title'));
-    gsap.from('#also .prod', { y: 80, opacity: 0, stagger: .1, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '#also', start: 'top 85%' } });
+    gsap.from('#also', { y: 80, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '#also', start: 'top 85%' } });
   }
 };
 function gridIn() {
   if (RM) return;
-  ScrollTrigger.batch('#pgrid > *', { start: 'top 92%', once: true, onEnter: els => gsap.from(els, { y: 90, opacity: 0, stagger: .08, duration: 1.2, ease: 'expo.out' }) });
+  gsap.from('#pgrid', { y: 60, duration: 1.2, ease: 'expo.out', delay: .45 });
 }
 
 /* ================= prodotto ================= */
@@ -345,8 +352,21 @@ function openModal(html) {
 }
 function closeModal() {
   if (!modalOpen) return; modalOpen = false; modal.setAttribute('aria-hidden', 'true');
+  document.documentElement.classList.remove('qv-open'); box.classList.remove('qv');
   gsap.to(box, { y: 50, opacity: 0, duration: .35, ease: 'power2.in', onComplete: () => gsap.set(modal, { visibility: 'hidden' }) });
   if (!drawerOpen) { scrimOn(false); if (!menuOpen) lock(false); }
+}
+function quickView(id) {
+  const p = byId(id); if (!p) return;
+  openModal(`<div class="qv-stage"><img class="eng" src="assets/inc-insegna.webp" alt=""><div class="qv-jarwrap"><div class="qv-jar" id="qvJar" data-jar="${p.id}" data-drag data-speed=".3" data-angle="-.4" data-pad="1.12" style="aspect-ratio:${DIM[p.id][1]};height:${Math.round(hp(p.id) * .8)}%" role="img" aria-label="${p.name}: trascina per ruotarlo"><img class="jar-fallback" src="${src(p)}" alt=""></div></div>
+    <div class="hint"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M4 10h26M4 10l5-5M4 10l5 5M30 10l-5-5M30 10l-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Trascina per girarlo</div></div>
+    <div class="qv-info"><div class="crumbs"><span>${catName(p.cat)}</span></div>${flag(p)}<h2>${p.name}</h2>${tags()}
+      <p class="desc">${p.d}</p>
+      <div class="rows">${p.rows.map(r => `<div><b>${r[0]}</b>${r[1]}</div>`).join('')}</div>
+      <div class="price">${priceHTML(p)}</div>
+      <div class="buy"><div class="step"><button data-qv-q="-1" aria-label="Togli uno">-</button><span id="qvQty">1</span><button data-qv-q="1" aria-label="Aggiungi uno">+</button></div><button class="blk" data-qv-add="${p.id}">Aggiungi al carrello</button></div>
+      <button class="qv-more" data-qv-page="${p.id}">Vedi la scheda completa</button></div>`);
+  box.classList.add('qv'); document.documentElement.classList.add('qv-open');
 }
 function eraModal(i) {
   const e = ERE[i];
@@ -486,6 +506,33 @@ coForm.addEventListener('submit', e => {
   if (!RM) gsap.from('#coDone > *', { y: 40, opacity: 0, stagger: .08, duration: 1, ease: 'expo.out' });
 });
 
+/* ================= cartoline della storia: trascinamento con il mouse ================= */
+let cardsDragged = false;
+{
+  const c = $('#cards');
+  let down = false, sx = 0, sl = 0, lx = 0, lt = 0, v = 0, raf = 0;
+  c.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse') return;
+    down = true; cardsDragged = false; sx = lx = e.clientX; sl = c.scrollLeft; lt = performance.now(); v = 0;
+    cancelAnimationFrame(raf); c.classList.add('grabbing');
+  });
+  addEventListener('pointermove', e => {
+    if (!down) return;
+    const dx = e.clientX - sx; if (Math.abs(dx) > 6) cardsDragged = true;
+    c.scrollLeft = sl - dx;
+    const now = performance.now(); v = (e.clientX - lx) / Math.max(now - lt, 8); lx = e.clientX; lt = now;
+  });
+  addEventListener('pointerup', () => {
+    if (!down) return; down = false;
+    // inerzia, poi l'aggancio alla cartolina più vicina
+    const glide = () => { if (Math.abs(v) < .02) { c.classList.remove('grabbing'); return; } c.scrollLeft -= v * 16; v *= .93; raf = requestAnimationFrame(glide); };
+    glide();
+    setTimeout(() => { cardsDragged = false; }, 50);
+  });
+  c.addEventListener('click', e => { if (cardsDragged) { e.stopPropagation(); e.preventDefault(); } }, true);
+  c.addEventListener('dragstart', e => e.preventDefault());
+}
+
 /* ================= toast ================= */
 const tEl = $('#toast'); let tTl;
 gsap.set(tEl, { xPercent: -50, yPercent: 160 });
@@ -498,7 +545,10 @@ document.addEventListener('click', e => {
   if (t.matches('[data-tab]')) { promoTab = t.dataset.tab; promoList(); return; }
   if (t.matches('[data-close-promo]')) { closePromo(); return; }
   if (t.matches('[data-promo-add]')) { addToCart(t.dataset.promoAdd, 1, $('img', t.closest('.pitem'))); return; }
-  if (t.matches('[data-promo-go]')) { closePromo(); go('prodotto-' + t.dataset.promoGo); return; }
+  if (t.matches('[data-promo-go]')) { closePromo(); quickView(t.dataset.promoGo); return; }
+  if (t.matches('[data-qv-q]')) { const q = $('#qvQty'); q.textContent = Math.max(1, +q.textContent + +t.dataset.qvQ); gsap.fromTo(q, { scale: 1.5 }, { scale: 1, duration: .6, ease: 'elastic.out(1,.4)' }); return; }
+  if (t.matches('[data-qv-add]')) { const el = $('#qvJar'), q = +$('#qvQty').textContent; closeModal(); addToCart(t.dataset.qvAdd, q, el); return; }
+  if (t.matches('[data-qv-page]')) { const id = t.dataset.qvPage; closeModal(); setTimeout(() => go('prodotto-' + id), 300); return; }
   if (t.matches('[data-open-promo]')) { e.preventDefault(); openPromo(); return; }
   if (t.matches('[data-add]')) { addToCart(t.dataset.add, +$('#qty').textContent, $('.pdp-stage .float')); return; }
   if (t.matches('[data-q]')) { const q = $('#qty'); q.textContent = Math.max(1, +q.textContent + +t.dataset.q); gsap.fromTo(q, { scale: 1.5 }, { scale: 1, duration: .6, ease: 'elastic.out(1,.4)' }); return; }
@@ -516,11 +566,11 @@ document.addEventListener('click', e => {
     $$('#filters button').forEach(b => b.setAttribute('aria-pressed', b === t));
     const g = $('#pgrid');
     if (RM) { renderGrid(t.dataset.f); return; }
-    gsap.to(g.children, { y: -30, opacity: 0, duration: .35, stagger: .02, ease: 'power2.in', onComplete: () => { renderGrid(t.dataset.f); gsap.from(g.children, { y: 70, opacity: 0, duration: 1, stagger: .06, ease: 'expo.out' }); ScrollTrigger.refresh(); } });
+    renderGrid(t.dataset.f); gsap.fromTo(g, { y: 40 }, { y: 0, duration: .9, ease: 'expo.out' }); ScrollTrigger.refresh();
     return;
   }
-  if (t.matches('[data-era]')) { eraModal(+t.dataset.era); return; }
-  if (t.matches('[data-prod]')) { e.preventDefault(); go('prodotto-' + t.dataset.prod); return; }
+  if (t.matches('[data-era]')) { if (cardsDragged) return; eraModal(+t.dataset.era); return; }
+  if (t.matches('[data-prod]')) { e.preventDefault(); if (cardsDragged) return; quickView(t.dataset.prod); return; }
   if (t.matches('[data-go]')) { e.preventDefault(); const to = t.dataset.to; if (drawerOpen) closeCart(); if (menuOpen) { toggleMenu(false); setTimeout(() => go(t.dataset.go, to), 500); } else go(t.dataset.go, to); return; }
   if (t.matches('[data-to]')) { e.preventDefault(); const el = document.getElementById(t.dataset.to); el && scrollToEl(el); return; }
 });
@@ -538,38 +588,18 @@ let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTime
   if (!RM && matchMedia('(hover: hover) and (pointer: fine)').matches) {
     document.documentElement.classList.add('has-cursor');
     const lab = $('.c-label', cur);
-    const qx = gsap.quickTo(cur, 'x', { duration: .16, ease: 'power3' }), qy = gsap.quickTo(cur, 'y', { duration: .16, ease: 'power3' });
     const drag = '<svg viewBox="0 0 34 20" aria-hidden="true"><path d="M4 10h26M4 10l5-5M4 10l5 5M30 10l-5-5M30 10l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    const RULES = [['.pdp-stage .float', drag + 'Trascina'], ['.prod, .shelf .jarbox, .pthumb', 'Apri'], ['.card', 'Leggi'], ['#jarRise', 'Castagnella']];
-    // sfondo scuro o fotografico sotto il puntatore? allora ovale chiaro
-    const PHOTO = '.hero-frame, .film-box, .banner-box, .life-box, .card .ph, .pack-img, .mimg';
-    const darkCache = new WeakMap();
-    function isDark(t) {
-      if (t.closest(PHOTO)) return true;
-      for (let n = t; n && n !== document.documentElement; n = n.parentElement) {
-        if (darkCache.has(n)) return darkCache.get(n);
-        const m = getComputedStyle(n).backgroundColor.match(/[\d.]+/g);
-        if (m && (m.length < 4 || +m[3] > .5)) { const l = (.299 * m[0] + .587 * m[1] + .114 * m[2]) / 255 < .45; darkCache.set(n, l); return l; }
-      }
-      return false;
-    }
-    let first = true;
+    const RULES = [['.pdp-stage .float, .qv-jar', drag + 'Trascina'], ['.prod, .shelf .jarbox, .pthumb', 'Apri'], ['.cards', drag + 'Trascina']];
+    // la targhetta segue la freccia senza ritardo, spostata in basso a destra per non coprire il punto del click
     addEventListener('pointermove', e => {
       if (e.pointerType !== 'mouse') return;
-      if (first) { gsap.set(cur, { x: e.clientX, y: e.clientY }); first = false; }
-      qx(e.clientX); qy(e.clientY); cur.classList.remove('off');
+      cur.style.transform = `translate(${e.clientX}px,${e.clientY}px)`; cur.classList.remove('off');
     }, { passive: true });
     document.addEventListener('pointerover', e => {
-      const t = e.target;
-      const rule = RULES.find(([sel]) => t.closest(sel));
+      const rule = RULES.find(([sel]) => e.target.closest(sel));
       cur.classList.toggle('label', !!rule);
       if (rule) lab.innerHTML = rule[1];
-      cur.classList.toggle('link', !rule && !!t.closest('a, button, [data-f], [data-tab], label'));
-      cur.classList.toggle('text', !!t.closest('input, textarea'));
-      cur.classList.toggle('dark', isDark(t));
     });
-    document.addEventListener('pointerdown', () => cur.classList.add('down'));
-    document.addEventListener('pointerup', () => cur.classList.remove('down'));
     document.documentElement.addEventListener('pointerleave', () => cur.classList.add('off'));
   }
 }
