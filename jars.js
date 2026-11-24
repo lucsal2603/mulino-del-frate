@@ -301,33 +301,40 @@ function collect() { els = [...document.querySelectorAll('[data-jar]')]; dirty =
 new MutationObserver(() => { dirty = true; fillSnaps(); }).observe(document.body, { childList: true, subtree: true });
 
 const clock = new THREE.Clock();
+// Ogni prodotto ha la sua tela 2D dentro la pagina: il motore 3D (fuori schermo) disegna la vista
+// e la copia lì. Così il prodotto scorre insieme alla pagina, senza ritardi né scatti sul telefono.
+function canvasFor(el) {
+  let cv = el.querySelector(':scope > canvas.jar-cv');
+  if (!cv) { cv = document.createElement('canvas'); cv.className = 'jar-cv'; cv.setAttribute('aria-hidden', 'true'); el.appendChild(cv); }
+  return cv;
+}
 function render() {
   if (dirty) collect();
   const dt = Math.min(clock.getDelta(), .05);
-  const W = innerWidth, H = innerHeight;
-  renderer.setScissorTest(false); renderer.setRenderTarget(null); renderer.clear(); renderer.setScissorTest(true);
-  const qv = document.documentElement.classList.contains('qv-open') ? document.getElementById('modal') : null;
+  const W = innerWidth, H = innerHeight, pr = renderer.getPixelRatio(), gl = renderer.domElement;
   for (const el of els) {
     const m = models[el.dataset.jar]; if (!m) continue;
     const r = el.getBoundingClientRect();
-    if (r.width < 2 || r.height < 2 || r.bottom < 0 || r.top > H || r.right < 0 || r.left > W) continue;
-    const op = opacityOf(el); if (op < .5) continue;
-    if (qv && !qv.contains(el)) continue; // con la scheda rapida aperta si disegnano solo i prodotti al suo interno
+    if (r.width < 2 || r.height < 2 || r.bottom < -40 || r.top > H + 40 || r.right < 0 || r.left > W) continue;
     let st = state.get(el);
     if (!st) { st = { a: +(el.dataset.angle || 0), v: 0, drag: false, bg: bgOf(el) }; state.set(el, st); bindDrag(el, st); }
     const host = el.closest('.prod') || el;
     const speed = RM ? 0 : (+(el.dataset.speed || .35)) * (host.matches(':hover') ? 3 : 1);
     if (!st.drag) { st.a += st.v * dt; st.v *= Math.pow(.04, dt); st.a += speed * dt; }
     m.pivot.rotation.set(0, st.a + (+(el.dataset.spin || 0)), +(el.dataset.tilt || 0));
-    setOpacity(m, op);
     m.pivot.visible = true;
     frameCamera(camera, m, r.width / r.height, +(el.dataset.pad || 1.14));
-    const x = r.left, y = H - r.bottom;
-    renderer.setViewport(x, y, r.width, r.height); renderer.setScissor(x, y, r.width, r.height);
-    renderer.setClearColor(st.bg, 1);
-    renderer.render(scene, camera);
-    renderer.setClearColor(0, 0);
+    // se il riquadro è più grande dello spazio di lavoro, si rende un po' più piccolo e si ingrandisce nella copia
+    const k = Math.min(1, W / r.width, H / r.height), vw = Math.floor(r.width * k), vh = Math.floor(r.height * k);
+    renderer.setViewport(0, 0, vw, vh); renderer.setScissor(0, 0, vw, vh); renderer.setScissorTest(true);
+    renderer.setClearColor(0, 0); renderer.clear();
+    renderer.setClearColor(st.bg, 1); renderer.render(scene, camera); renderer.setClearColor(0, 0);
     m.pivot.visible = false;
+    const cv = canvasFor(el), cw = Math.round(r.width * pr), ch = Math.round(r.height * pr);
+    if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; }
+    const c2 = cv.getContext('2d');
+    c2.clearRect(0, 0, cw, ch);
+    c2.drawImage(gl, 0, gl.height - vh * pr, vw * pr, vh * pr, 0, 0, cw, ch);
   }
 }
 function bindDrag(el, st) {
@@ -363,7 +370,6 @@ async function start() {
   const canvas = document.createElement('canvas'); canvas.id = 'jarsCanvas';
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return; }
   if (!renderer.getContext()) return;
-  document.body.appendChild(canvas);
   renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 760 ? 1.6 : 2)); renderer.setSize(innerWidth, innerHeight); renderer.setClearColor(0, 0); renderer.autoClear = false;
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.0; renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -389,6 +395,7 @@ async function start() {
   const logo = await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = 'assets/logo-gallo.jpg'; });
   build(logo);
   Object.values(models).forEach(m => m.pivot.visible = true); renderer.compile(scene, camera); Object.values(models).forEach(m => m.pivot.visible = false);
+  Object.values(models).forEach(m => setOpacity(m, 1));
   makeSnaps(); fillSnaps();
   document.documentElement.classList.add('jars-on');
   addEventListener('resize', () => renderer.setSize(innerWidth, innerHeight));

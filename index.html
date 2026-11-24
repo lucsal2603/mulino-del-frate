@@ -67,7 +67,7 @@
   <section class="hero">
     <div class="hero-frame" id="heroFrame">
       <div class="hero-img"><img src="assets/hero-insegna.jpg" alt="L'insegna in legno del Mulino del Frate, podere La Vanella, sulle colline dell'Appennino" id="heroImg"></div>
-      <h1 class="hero-title fit" id="heroTitle">Mulino del Frate</h1>
+      <h1 class="hero-title fit" id="heroTitle"><span class="hl">Mulino</span> <span class="hl">del Frate</span></h1>
       <div class="hero-cta" id="heroCta"><p>Miele, Castagnella, creme e rimedi naturali fatti al Mulino. Ordinali online.</p><a href="#bottega" data-go="bottega" class="oval light">Vai allo shop</a></div>
     </div>
   </section>
@@ -90,7 +90,7 @@
 
   <section class="film">
     <div class="film-box" id="filmBox">
-      <svg class="drip" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><defs><filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="8"/><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10"/></filter><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d99a1e"/><stop offset="1" stop-color="#f2b33d"/></linearGradient></defs><g filter="url(#goo)" fill="url(#hg)" id="dripG"></g></svg>
+      <svg class="drip" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMin meet" aria-hidden="true"><defs><filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="8"/><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10"/></filter><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d99a1e"/><stop offset="1" stop-color="#f2b33d"/></linearGradient></defs><g filter="url(#goo)" fill="url(#hg)" id="dripG"></g></svg>
       <img src="assets/scaffale.jpg" alt="I prodotti del Mulino del Frate su un tavolo di pietra al sole, davanti al bosco" id="filmImg">
     </div>
   </section>
@@ -110,7 +110,8 @@
     <span class="sr">La storia del mulino</span>
     <div class="cards-wrap">
       <div class="cards" id="cards"></div>
-      <button class="round" id="cardsNext" aria-label="Scorri le card"><svg><use href="#i-arrow"/></svg></button>
+      <button class="round prev" id="cardsPrev" aria-label="Cartoline precedenti"><svg><use href="#i-arrow"/></svg></button>
+      <button class="round" id="cardsNext" aria-label="Cartoline successive"><svg><use href="#i-arrow"/></svg></button>
     </div>
   </section>
 
@@ -332,7 +333,7 @@
 <a class="shop-float" id="shopFloat" href="#bottega" data-go="bottega"><svg aria-hidden="true"><use href="#i-bag"/></svg>Shop</a>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="cursor" id="cursor" aria-hidden="true"><span class="c-label"></span></div>
-<div class="draft">Bozza di restyling, non è il sito ufficiale</div>
+<div class="draft"><span class="d-long">Bozza di restyling, non è il sito ufficiale</span><span class="d-short">Bozza</span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>

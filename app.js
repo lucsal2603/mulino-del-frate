@@ -115,8 +115,10 @@ function picsIn(el) {
 function fitHero() {
   const t = $('#heroTitle'), f = $('#heroFrame');
   t.style.fontSize = '100px';
-  const rg = document.createRange(); rg.selectNodeContents(t);
-  const w = rg.getBoundingClientRect().width;
+  const mobile = innerWidth < 760;
+  const width = n => { const rg = document.createRange(); rg.selectNodeContents(n); return rg.getBoundingClientRect().width; };
+  const w = mobile ? Math.max(...$$('.hl', t).map(width)) : width(t);
+  if (mobile) { t.style.fontSize = Math.min(100 * (f.clientWidth * .86) / w, 400) + 'px'; return; }
   t.style.fontSize = Math.min(100 * (f.clientWidth * 0.93) / w, 400) + 'px';
 }
 
@@ -136,6 +138,7 @@ const scenes = {
     if (!seen()) ScrollTrigger.create({ trigger: '#antico', start: 'bottom 60%', once: true, onEnter: () => setTimeout(() => openPromo(), 600) });
     armPromo();
     gsap.to('#heroImg', { yPercent: 14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+    if (innerWidth < 760) gsap.fromTo('#heroImg', { objectPosition: '0% 64%' }, { objectPosition: '100% 64%', duration: 14, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: first ? 2 : .5 });
     gsap.to('#heroTitle', { yPercent: 40, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
 
     $$('[data-speed]').forEach(im => gsap.fromTo(im, { yPercent: 0 }, { yPercent: +im.dataset.speed, ease: 'none', scrollTrigger: { trigger: im.closest('section'), start: 'top bottom', end: 'bottom top', scrub: true } }));
@@ -145,7 +148,8 @@ const scenes = {
 
     giantIn($('#anticoTitle'));
     const jr = $('#jarRise'), jt = { t: -.2, s: -2.4 };
-    gsap.fromTo('#jarRise', { y: '38vh' }, { y: '-6vh', ease: 'none', scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
+    // su telefono il vasetto non viene spostato dallo scroll (lo scroll nativo lo farebbe andare a scatti): gira soltanto
+    if (innerWidth >= 760) gsap.fromTo('#jarRise', { y: '38vh' }, { y: '-6vh', ease: 'none', scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
     gsap.to(jt, { t: .12, s: 2.4, ease: 'none', onUpdate: () => { jr.dataset.tilt = jt.t; jr.dataset.spin = jt.s; }, scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
 
     const set = buildDrip($('#dripG')), o = { p: 0 };
@@ -163,8 +167,8 @@ const scenes = {
     loop.totalTime(38 * 500); // margine per poter girare anche all'indietro
     let dir = 1;
     ScrollTrigger.create({ trigger: '.shelf-wrap', start: 'top bottom', end: 'bottom top',
-      onUpdate: self => { dir = self.direction; const v = gsap.utils.clamp(-6, 6, self.getVelocity() / 250); gsap.to(loop, { timeScale: v || dir, duration: .25, overwrite: true, onComplete: () => gsap.to(loop, { timeScale: dir, duration: 1.2, ease: 'power2.out' }) }); } });
-    $$('.jarbox', shelf).forEach(j => { j.addEventListener('pointerenter', () => gsap.to(loop, { timeScale: .15 * dir, duration: .6 })); j.addEventListener('pointerleave', () => gsap.to(loop, { timeScale: dir, duration: .8 })); });
+      onUpdate: self => { const boost = 1 + gsap.utils.clamp(0, 3, Math.abs(self.getVelocity()) / 500); gsap.to(loop, { timeScale: boost, duration: .4, overwrite: true, onComplete: () => gsap.to(loop, { timeScale: 1, duration: 1.4, ease: 'power2.out' }) }); } });
+    $$('.jarbox', shelf).forEach(j => { j.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') gsap.to(loop, { timeScale: .15, duration: .6, overwrite: true }); }); j.addEventListener('pointerleave', () => gsap.to(loop, { timeScale: 1, duration: .8, overwrite: true })); });
 
     giantIn($('#storiaTitle'));
     gsap.to('#storiaTitle .glyph', { rotation: 360, ease: 'none', transformOrigin: '50% 50%', duration: 6, repeat: -1 });
@@ -542,6 +546,12 @@ let cardsDragged = false;
   c.addEventListener('dragstart', e => e.preventDefault());
 }
 
+{
+  const c = $('#cards'), prev = $('#cardsPrev'), next = $('#cardsNext');
+  const upd = () => { prev.disabled = c.scrollLeft < 8; next.disabled = c.scrollLeft > c.scrollWidth - c.clientWidth - 8; };
+  c.addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); setTimeout(upd, 500);
+}
+
 /* ================= toast ================= */
 const tEl = $('#toast'); let tTl;
 gsap.set(tEl, { xPercent: -50, yPercent: 160 });
@@ -570,7 +580,7 @@ document.addEventListener('click', e => {
   if (t.matches('[data-contact]')) { e.preventDefault(); if (menuOpen) toggleMenu(false); formModal('contact'); return; }
   if (t.id === 'checkout') { if (!count()) { toast('Il carrello è vuoto'); return; } closeCart(); go('pagamento'); return; }
   if (t.matches('[data-express]')) { toast(`${t.dataset.express}: nella bozza il pagamento rapido non è attivo`); return; }
-  if (t.id === 'cardsNext') { const c = $('#cards'); c.scrollBy({ left: c.clientWidth * .6, behavior: RM ? 'auto' : 'smooth' }); return; }
+  if (t.id === 'cardsNext' || t.id === 'cardsPrev') { const c = $('#cards'); c.scrollBy({ left: (t.id === 'cardsNext' ? 1 : -1) * c.clientWidth * .6, behavior: RM ? 'auto' : 'smooth' }); return; }
   if (t.matches('[data-f]')) {
     $$('#filters button').forEach(b => b.setAttribute('aria-pressed', b === t));
     const g = $('#pgrid');
