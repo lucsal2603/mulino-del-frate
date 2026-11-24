@@ -454,6 +454,18 @@ let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTime
     const qx = gsap.quickTo(cur, 'x', { duration: .16, ease: 'power3' }), qy = gsap.quickTo(cur, 'y', { duration: .16, ease: 'power3' });
     const drag = '<svg viewBox="0 0 34 20" aria-hidden="true"><path d="M4 10h26M4 10l5-5M4 10l5 5M30 10l-5-5M30 10l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const RULES = [['.pdp-stage .float', drag + 'Trascina'], ['.prod, .shelf .jarbox, .pthumb', 'Apri'], ['.card', 'Leggi'], ['#jarRise', 'Castagnella']];
+    // sfondo scuro o fotografico sotto il puntatore? allora ovale chiaro
+    const PHOTO = '.hero-frame, .film-box, .banner-box, .life-box, .card .ph, .pack-img, .mimg';
+    const darkCache = new WeakMap();
+    function isDark(t) {
+      if (t.closest(PHOTO)) return true;
+      for (let n = t; n && n !== document.documentElement; n = n.parentElement) {
+        if (darkCache.has(n)) return darkCache.get(n);
+        const m = getComputedStyle(n).backgroundColor.match(/[\d.]+/g);
+        if (m && (m.length < 4 || +m[3] > .5)) { const l = (.299 * m[0] + .587 * m[1] + .114 * m[2]) / 255 < .45; darkCache.set(n, l); return l; }
+      }
+      return false;
+    }
     let first = true;
     addEventListener('pointermove', e => {
       if (e.pointerType !== 'mouse') return;
@@ -467,6 +479,7 @@ let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTime
       if (rule) lab.innerHTML = rule[1];
       cur.classList.toggle('link', !rule && !!t.closest('a, button, [data-f], [data-tab], label'));
       cur.classList.toggle('text', !!t.closest('input, textarea'));
+      cur.classList.toggle('dark', isDark(t));
     });
     document.addEventListener('pointerdown', () => cur.classList.add('down'));
     document.addEventListener('pointerup', () => cur.classList.remove('down'));
