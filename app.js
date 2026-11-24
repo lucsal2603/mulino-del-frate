@@ -33,7 +33,11 @@ const byId = id => P.find(p => p.id === id);
 const catName = id => (CATS.find(c => c.id === id) || {}).name || '';
 const eur = n => '€ ' + n.toFixed(2).replace('.', ',');
 const src = p => `assets/${p.img}.webp`;
-const SIZE = { castagnella: 66, miele: 64, propoli: 82, dopobarba: 100, maschera: 50, artiglio: 50, calendula: 50, polline: 50, teatree: 50 };
+// dimensioni reali dei modelli 3D (altezza in cm, rapporto larghezza/altezza del riquadro)
+const DIM = { castagnella: [8.7, .9], miele: [8.7, .9], propoli: [8.4, .5], dopobarba: [13.7, .5], maschera: [5.55, 1.33], artiglio: [5.55, 1.33], calendula: [5.55, 1.33], polline: [5.55, 1.33], teatree: [5.55, 1.33] };
+const hp = id => Math.round(45 + 55 * DIM[id][0] / 13.7);
+const jarBox = (p, extra = '', style = '') => `<div class="jarbox" data-jar="${p.id}" ${extra} style="height:${hp(p.id)}%;aspect-ratio:${DIM[p.id][1]};${style}" role="img" aria-label="${p.name}, modello 3D"><img class="jar-fallback" src="${src(p)}" alt=""></div>`;
+const snapSrc = p => (window.MDFJars && MDFJars.snap(p.id)) || src(p);
 
 /* ================= lenis ================= */
 let lenis = null;
@@ -50,12 +54,12 @@ const scrollToEl = el => lenis ? lenis.scrollTo(el, { offset: -60, duration: 1.8
 /* ================= render statici ================= */
 const tags = () => `<div class="tags"><span><svg><use href="#i-leaf"/></svg>Naturale</span><span><svg><use href="#i-hand"/></svg>Fatto a mano</span></div>`;
 const prodHTML = p => `<article class="prod" data-prod="${p.id}" tabindex="0" aria-label="${p.name}">
-  <div class="stage"><img src="${src(p)}" alt="${p.name}" loading="lazy" style="height:${SIZE[p.id] || 70}%"></div>
+  <div class="stage">${jarBox(p)}</div>
   ${tags()}<h3>${p.name}</h3><div class="meta">${eur(p.price)}</div><span class="pill">Acquista ora</span></article>`;
 const packHTML = `<article class="pack"><div class="pack-img"><img src="assets/cosmesi.jpg" alt="Vasetti e flaconi del Mulino del Frate su un vassoio di vimini"></div>
   <div class="pack-copy"><h3>Confezione regalo</h3><p>La componiamo noi: miele, tisane, una crema dal laboratorio di Lucilla. Dicci per chi è e quanto vuoi spendere, e prepariamo una scatola su misura.</p><button class="blk" data-gift>Chiedi una confezione</button></div></article>`;
 
-$('#shelf').innerHTML = [...P, ...P.slice(0, 4)].map(p => `<img src="${src(p)}" alt="${p.name}" data-prod="${p.id}" style="height:${(SIZE[p.id] || 70) * 1.1}%">`).join('');
+$('#shelf').innerHTML = [...P, ...P.slice(0, 4)].map((p, i) => jarBox(p, `data-prod="${p.id}" data-angle="${i * 1.3}" data-speed=".5"`).replace('class="jarbox"', 'class="jarbox" tabindex="0"')).join('');
 $('#cards').innerHTML = ERE.map((e, i) => `<article class="card" data-era="${i}" tabindex="0"><div class="ph"><img src="assets/${e.img}" alt="" loading="lazy"></div><h3>${e.t}</h3><p>${e.when}</p></article>`).join('');
 $('#filters').innerHTML = CATS.map((c, i) => `<button data-f="${c.id}" aria-pressed="${i === 0}">${c.name}</button>`).join('');
 
@@ -127,7 +131,9 @@ const scenes = {
     gsap.from('.about-copy .oval', { y: 30, opacity: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.about-copy .oval', start: 'top 92%' } });
 
     giantIn($('#anticoTitle'));
-    gsap.fromTo('#jarRise', { y: '38vh', rotation: -12 }, { y: '-6vh', rotation: 7, ease: 'none', scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
+    const jr = $('#jarRise'), jt = { t: -.2, s: -2.4 };
+    gsap.fromTo('#jarRise', { y: '38vh' }, { y: '-6vh', ease: 'none', scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
+    gsap.to(jt, { t: .12, s: 2.4, ease: 'none', onUpdate: () => { jr.dataset.tilt = jt.t; jr.dataset.spin = jt.s; }, scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
 
     const set = buildDrip($('#dripG')), o = { p: 0 };
     gsap.to(o, { p: 1, ease: 'none', onUpdate: () => set(o.p), scrollTrigger: { trigger: '#filmBox', start: 'top 80%', end: 'center 35%', scrub: 1 } });
@@ -159,8 +165,11 @@ const scenes = {
   prodotto() {
     if (RM) return;
     const fl = $('.pdp-stage .float');
-    gsap.from(fl, { yPercent: 40, opacity: 0, rotation: -40, duration: 1.6, ease: 'expo.out', delay: .3 });
-    gsap.to(fl, { y: -18, rotation: -10, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 1.9 });
+    const tl = { t: -.35, s: -3 }, setT = () => { fl.dataset.tilt = tl.t; fl.dataset.spin = tl.s; };
+    gsap.from(fl, { y: 220, opacity: 0, duration: 1.6, ease: 'expo.out', delay: .3 });
+    gsap.to(tl, { t: -.08, s: 0, duration: 2, ease: 'expo.out', delay: .3, onUpdate: setT });
+    gsap.to(fl, { y: -16, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 1.9 });
+    gsap.from('.hint', { y: 20, opacity: 0, duration: 1, ease: 'expo.out', delay: 1.4 });
     gsap.from('.pdp-info > *', { y: 30, opacity: 0, stagger: .06, duration: 1, ease: 'expo.out', delay: .35 });
     gsap.fromTo('#lifeImg', { yPercent: -10 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: '.life', start: 'top bottom', end: 'bottom top', scrub: true } });
     linesIn($('.also-title'));
@@ -175,7 +184,7 @@ function gridIn() {
 /* ================= prodotto ================= */
 function renderProduct(id) {
   const p = byId(id) || P[0];
-  $('#pdp').innerHTML = `<div class="pdp-stage"><img class="eng" src="assets/inc-insegna.webp" alt=""><img class="float" src="${src(p)}" alt="${p.name}" style="max-height:${Math.round((SIZE[p.id] || 70) * .7)}%"></div>
+  $('#pdp').innerHTML = `<div class="pdp-stage"><img class="eng" src="assets/inc-insegna.webp" alt=""><div class="float-wrap"><div class="float" data-jar="${p.id}" data-drag data-speed=".22" data-angle="-.5" data-pad="1.13" style="height:${Math.round(hp(p.id) * .78)}%;aspect-ratio:${DIM[p.id][1]}" role="img" aria-label="${p.name}: trascina per ruotarlo"><img class="jar-fallback" src="${src(p)}" alt=""></div></div><div class="hint"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M4 10h26M4 10l5-5M4 10l5 5M30 10l-5-5M30 10l-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Trascina per girarlo a 360°</div></div>
   <div class="pdp-info">
     <div class="crumbs"><a href="#bottega" data-go="bottega">Bottega</a><svg><use href="#i-chev"/></svg><span>${catName(p.cat)}</span><svg><use href="#i-chev"/></svg><span>${p.name}</span></div>
     <h1>${p.name}</h1>${tags()}
@@ -264,7 +273,7 @@ let drawerOpen = false, modalOpen = false;
 function renderCart() {
   $$('[data-count]').forEach(c => c.textContent = count());
   const ids = Object.keys(cart).filter(byId);
-  $('#lines').innerHTML = ids.length ? ids.map(id => { const p = byId(id); return `<div class="cline"><div class="th"><img src="${src(p)}" alt=""></div><div><h4>${p.name}</h4><div class="step"><button data-dec="${id}" aria-label="Togli uno">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Aggiungi uno">+</button></div></div><span class="p">${eur(p.price * cart[id])}</span></div>`; }).join('')
+  $('#lines').innerHTML = ids.length ? ids.map(id => { const p = byId(id); return `<div class="cline"><div class="th"><img src="${snapSrc(p)}" data-snap="${p.id}" alt=""></div><div><h4>${p.name}</h4><div class="step"><button data-dec="${id}" aria-label="Togli uno">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Aggiungi uno">+</button></div></div><span class="p">${eur(p.price * cart[id])}</span></div>`; }).join('')
     : `<div class="empty">Il carrello è vuoto.<br><a href="#bottega" data-go="bottega" class="oval">Vai alla bottega</a></div>`;
   $('#total').textContent = eur(total());
 }
@@ -286,14 +295,17 @@ function addToCart(id, q, fromImg) {
   const done = () => { renderCart(); gsap.fromTo(badge, { scale: 1.6 }, { scale: 1, duration: .9, ease: 'elastic.out(1.2,.35)' }); toast('Aggiunto al carrello: ' + byId(id).name); };
   if (RM || !fromImg) return done();
   const r = fromImg.getBoundingClientRect(), t = badge.getBoundingClientRect();
-  const cl = fromImg.cloneNode();
-  Object.assign(cl.style, { position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', zIndex: 99, pointerEvents: 'none', margin: 0, transform: 'none', objectFit: 'contain' });
+  let cl;
+  if (document.documentElement.classList.contains('jars-on')) { cl = document.createElement('div'); cl.dataset.jar = id; cl.dataset.speed = '9'; cl.dataset.pad = '1.04'; }
+  else { cl = document.createElement('img'); cl.src = src(byId(id)); }
+  Object.assign(cl.style, { position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', zIndex: 99, pointerEvents: 'none', margin: 0, objectFit: 'contain' });
   document.body.appendChild(cl);
   const dx = t.left + t.width / 2 - (r.left + r.width / 2), dy = t.top + t.height / 2 - (r.top + r.height / 2);
-  gsap.timeline({ onComplete: () => { cl.remove(); done(); } })
+  document.documentElement.classList.add('flying');
+  gsap.timeline({ onComplete: () => { cl.remove(); document.documentElement.classList.remove('flying'); done(); } })
     .to(cl, { x: dx, duration: 1, ease: 'power2.inOut' }, 0)
     .to(cl, { y: dy, duration: 1, ease: 'back.in(1.3)' }, 0)
-    .to(cl, { scale: .06, rotation: 30, duration: 1, ease: 'power3.in' }, 0);
+    .to(cl, { scale: .08, duration: 1, ease: 'power3.in' }, 0);
 }
 
 /* ================= modale ================= */

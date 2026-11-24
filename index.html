@@ -7,7 +7,7 @@
 <meta name="description" content="Mulino del Frate, Roncobilaccio: miele, Castagnella, unguenti e cosmesi naturale da un mulino in pietra di oltre cinquecento anni nell'Appennino tosco-emiliano.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -71,7 +71,7 @@
 
     <div class="antico" id="antico">
       <h2 class="giant" id="anticoTitle">Un <em>miele</em><br>antico</h2>
-      <img class="jar-rise" id="jarRise" src="assets/c-castagnella.webp" alt="Vasetto di Castagnella del Mulino del Frate">
+      <div class="jar-rise" id="jarRise" data-jar="castagnella" data-speed=".45" data-pad="1.02" role="img" aria-label="Vasetto di Castagnella del Mulino del Frate, in 3D"><img class="jar-fallback" src="assets/c-castagnella.webp" alt=""></div>
       <div class="antico-cta"><a href="#prodotto-castagnella" data-go="prodotto-castagnella" class="oval">Acquista ora</a></div>
     </div>
   </section>
@@ -85,7 +85,7 @@
 
   <section class="sapori">
     <p class="kicker">I sapori dell'alveare</p>
-    <p class="statement small" id="sapori">Con il miele e la propoli delle nostre api <span class="pic r3"><img src="assets/c-miele.webp" alt="Vasetto di miele millefiori balsamico" class="cut"></span> prepariamo creme, unguenti e cosmetici naturali.</p>
+    <p class="statement small" id="sapori">Con il miele e la propoli delle nostre api <span class="pic r3"><img src="assets/c-miele.webp" alt="Vasetto di miele millefiori balsamico" class="cut" data-snap="miele"></span> prepariamo creme, unguenti e cosmetici naturali.</p>
     <div class="shelf-wrap">
       <h2 class="giant dark" id="bottegaTitle">La nostra<br>bottega</h2>
       <div class="shelf" id="shelf"></div>
@@ -182,5 +182,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="app.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module" src="jars.js"></script>
 </body>
 </html>
