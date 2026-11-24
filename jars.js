@@ -355,7 +355,11 @@ async function start() {
   scene = new THREE.Scene();
   const pm = new THREE.PMREMGenerator(renderer);
   try {
-    const hdr = await new RGBELoader().loadAsync('assets/studio.hdr');
+    const b64 = (await import('./assets/studio-hdr.js')).default;
+    const bin = atob(b64), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const d = new RGBELoader().parse(bytes.buffer);
+    const hdr = new THREE.DataTexture(d.data, d.width, d.height, THREE.RGBAFormat, d.type);
+    hdr.colorSpace = THREE.LinearSRGBColorSpace; hdr.mapping = THREE.EquirectangularReflectionMapping; hdr.minFilter = hdr.magFilter = THREE.LinearFilter; hdr.generateMipmaps = false; hdr.flipY = true; hdr.needsUpdate = true;
     scene.environment = pm.fromEquirectangular(hdr).texture; hdr.dispose();
   } catch (e) { scene.environment = pm.fromScene(new RoomEnvironment(), .04).texture; }
   scene.environmentRotation = new THREE.Euler(0, -.9, 0); scene.environmentIntensity = 1.05;
