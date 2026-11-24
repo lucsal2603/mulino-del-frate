@@ -140,6 +140,118 @@
   </section>
 </main>
 
+<!-- =============== PAGAMENTO =============== -->
+<main class="view" id="v-checkout" data-view="checkout" hidden>
+  <section class="co">
+    <div class="co-head">
+      <div class="crumbs"><a href="#bottega" data-go="bottega">Shop</a><svg><use href="#i-chev"/></svg><button data-open-cart class="crumb-btn">Carrello</button><svg><use href="#i-chev"/></svg><span>Pagamento</span></div>
+      <h1 id="coTitle">Completa l'ordine</h1>
+      <p class="co-lead">Non serve creare un account: bastano i dati per la consegna. Il riepilogo arriva via email.</p>
+    </div>
+
+    <div class="co-empty" id="coEmpty" hidden>
+      <p>Il carrello è vuoto.</p>
+      <a href="#bottega" data-go="bottega" class="oval">Vai allo shop</a>
+    </div>
+
+    <div class="co-grid" id="coGrid">
+      <form class="co-form" id="coForm" novalidate>
+        <div class="express">
+          <p class="co-k">Pagamento rapido</p>
+          <div class="express-row">
+            <button type="button" class="xp" data-express="PayPal">PayPal</button>
+            <button type="button" class="xp" data-express="Apple Pay">Apple Pay</button>
+            <button type="button" class="xp" data-express="Google Pay">Google Pay</button>
+          </div>
+          <p class="or"><span>oppure inserisci i dati</span></p>
+        </div>
+
+        <fieldset>
+          <legend>Contatto</legend>
+          <div class="f2">
+            <label class="fl">Email<input type="email" name="email" autocomplete="email" required inputmode="email"><span class="err">Inserisci un'email valida</span></label>
+            <label class="fl">Telefono<input type="tel" name="tel" autocomplete="tel" required inputmode="tel" pattern="[+0-9 ]{6,}"><span class="err">Serve un numero per il corriere o per il ritiro</span></label>
+          </div>
+          <label class="chk"><input type="checkbox" name="news"><span>Avvisatemi via email del miele nuovo e delle offerte di stagione</span></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Consegna</legend>
+          <div class="opts" role="radiogroup">
+            <label class="opt"><input type="radio" name="ship" value="spedizione" checked><span class="opt-b"><b>Spedizione a casa</b><small id="shipNote">Corriere in 2-4 giorni lavorativi</small></span><span class="opt-p" id="shipCost"></span></label>
+            <label class="opt"><input type="radio" name="ship" value="ritiro"><span class="opt-b"><b>Ritiro al Mulino</b><small>Via della Torre 17, Roncobilaccio, su appuntamento dal lunedì al venerdì</small></span><span class="opt-p">Gratis</span></label>
+          </div>
+          <div id="addr">
+            <div class="f2">
+              <label class="fl">Nome<input name="nome" autocomplete="given-name" required><span class="err">Campo obbligatorio</span></label>
+              <label class="fl">Cognome<input name="cognome" autocomplete="family-name" required><span class="err">Campo obbligatorio</span></label>
+            </div>
+            <label class="fl">Indirizzo e numero civico<input name="via" autocomplete="address-line1" required><span class="err">Campo obbligatorio</span></label>
+            <label class="fl">Scala, interno, presso (facoltativo)<input name="via2" autocomplete="address-line2"></label>
+            <div class="f3">
+              <label class="fl">CAP<input name="cap" autocomplete="postal-code" required inputmode="numeric" pattern="[0-9]{5}" maxlength="5"><span class="err">5 cifre</span></label>
+              <label class="fl">Città<input name="citta" autocomplete="address-level2" required><span class="err">Campo obbligatorio</span></label>
+              <label class="fl">Provincia<input name="prov" autocomplete="address-level1" required maxlength="2" pattern="[A-Za-z]{2}" placeholder="BO"><span class="err">Sigla, es. BO</span></label>
+            </div>
+            <label class="fl">Paese<select name="paese" autocomplete="country"><option>Italia</option></select></label>
+            <label class="fl">Note per il corriere (facoltativo)<textarea name="note" rows="2"></textarea></label>
+          </div>
+          <div id="pick" hidden>
+            <div class="f2">
+              <label class="fl">Nome<input name="pnome" autocomplete="given-name"><span class="err">Campo obbligatorio</span></label>
+              <label class="fl">Cognome<input name="pcognome" autocomplete="family-name"><span class="err">Campo obbligatorio</span></label>
+            </div>
+            <p class="hint-t">Lucilla ti scrive per fissare il giorno del ritiro. Dalla provinciale sono circa 200 metri di discesa verso il fiume, a piedi o con un 4x4.</p>
+          </div>
+          <label class="chk"><input type="checkbox" name="fattura" id="wantInvoice"><span>Mi serve la fattura</span></label>
+          <div id="invoice" hidden>
+            <div class="f2">
+              <label class="fl">Codice fiscale o partita IVA<input name="cf" autocomplete="off"><span class="err">Campo obbligatorio</span></label>
+              <label class="fl">Codice SDI o PEC (facoltativo)<input name="sdi" autocomplete="off"></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Pagamento</legend>
+          <div class="opts" role="radiogroup">
+            <label class="opt"><input type="radio" name="pay" value="carta" checked><span class="opt-b"><b>Carta di credito o debito</b><small>Visa, Mastercard, American Express</small></span></label>
+            <label class="opt"><input type="radio" name="pay" value="paypal"><span class="opt-b"><b>PayPal</b><small>Vieni portato su PayPal per completare il pagamento</small></span></label>
+            <label class="opt"><input type="radio" name="pay" value="bonifico"><span class="opt-b"><b>Bonifico bancario</b><small>Ricevi l'IBAN via email, spediamo quando arriva il pagamento</small></span></label>
+            <label class="opt" id="payPick" hidden><input type="radio" name="pay" value="ritiro"><span class="opt-b"><b>Paghi al ritiro</b><small>Contanti o carta, direttamente al Mulino</small></span></label>
+          </div>
+          <div class="card-box" id="cardBox">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            <p><b>Qui compare il modulo sicuro della carta</b> (Stripe o PayPal). Numero, scadenza e CVC si inseriscono lì: non passano mai dal sito del Mulino. Nella bozza non è attivo.</p>
+          </div>
+        </fieldset>
+
+        <label class="chk legal"><input type="checkbox" name="ok" required><span>Ho letto e accetto le condizioni di vendita e l'informativa privacy</span></label>
+        <p class="err-form" id="coErr" role="alert"></p>
+        <button class="blk pay" type="submit" id="payBtn">Paga</button>
+        <p class="small-note">Pagamento protetto. Puoi annullare l'ordine scrivendo a mulinodelfrate@gmail.com entro 14 giorni.</p>
+      </form>
+
+      <aside class="co-sum" id="coSum" aria-label="Riepilogo ordine">
+        <button class="sum-toggle" id="sumToggle" type="button" aria-expanded="false">Mostra il riepilogo <span id="sumTotSmall"></span></button>
+        <div class="sum-body" id="sumBody">
+          <h2>Il tuo ordine</h2>
+          <ul class="sum-lines" id="sumLines"></ul>
+          <dl class="sum-tot">
+            <div><dt>Subtotale</dt><dd id="sumSub"></dd></div>
+            <div id="sumSaveRow"><dt>Risparmi con le offerte</dt><dd id="sumSave"></dd></div>
+            <div><dt id="sumShipLabel">Spedizione</dt><dd id="sumShip"></dd></div>
+            <div class="grand"><dt>Totale</dt><dd id="sumTot"></dd></div>
+          </dl>
+          <p class="sum-note" id="sumFree"></p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="co-done" id="coDone" hidden></div>
+  </section>
+</main>
+
 <footer class="foot">
   <div class="foot-top">
     <a class="foot-brand" href="#home" data-go="home">Mulino del Frate</a>
@@ -174,8 +286,8 @@
   <div class="lines" id="lines"></div>
   <footer>
     <div class="tot"><span>Totale</span><span id="total">€ 0,00</span></div>
-    <button class="blk" id="checkout">Invia l'ordine</button>
-    <small>Il pagamento online si collega nella prossima fase. Per ora l'ordine arriva a Lucilla, che ti ricontatta per ritiro o spedizione.</small>
+    <button class="blk" id="checkout">Vai al pagamento</button>
+    <small>Senza registrazione: inserisci i dati solo al pagamento. Spedizione gratuita sopra i 49 €, oppure ritiro al Mulino.</small>
   </footer>
 </aside>
 

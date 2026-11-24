@@ -174,6 +174,11 @@ const scenes = {
     gridIn();
     gsap.fromTo('.cat .engr-bg img', { yPercent: 0 }, { yPercent: 12, ease: 'none', scrollTrigger: { trigger: '.cat', start: 'top top', end: 'bottom top', scrub: true } });
   },
+  checkout() {
+    if (RM) return;
+    gsap.from('.co-head > *', { y: 30, opacity: 0, stagger: .07, duration: 1, ease: 'expo.out', delay: .25 });
+    gsap.from('.co-form > *, .co-sum', { y: 40, opacity: 0, stagger: .06, duration: 1, ease: 'expo.out', delay: .4 });
+  },
   prodotto() {
     if (RM) return;
     const fl = $('.pdp-stage .float');
@@ -217,6 +222,7 @@ function parse() {
   const h = location.hash.slice(1);
   if (h === 'bottega') return { view: 'bottega' };
   if (h.startsWith('prodotto-')) return { view: 'prodotto', id: h.slice(9) };
+  if (h === 'pagamento') return { view: 'checkout' };
   return { view: 'home' };
 }
 const shopFloat = $('#shopFloat');
@@ -229,6 +235,7 @@ function show(r, first) {
   $$('.shop-link').forEach(l => l.toggleAttribute('aria-current', r.view === 'bottega'));
   $$('.view').forEach(v => v.hidden = v.dataset.view !== r.view);
   if (r.view === 'prodotto') renderProduct(r.id);
+  if (r.view === 'checkout') { renderCheckout(); syncDelivery(); }
   if (r.view === 'bottega') { renderGrid(); $$('#filters button').forEach((b, i) => b.setAttribute('aria-pressed', i === 0)); }
   toTop();
   ctx = gsap.context(() => scenes[r.view](first));
@@ -240,7 +247,7 @@ function navigate(r) {
   const key = r.view + (r.id || '');
   if (key === current) { if (r.to) { const el = document.getElementById(r.to); el && scrollToEl(el); } else lenis ? lenis.scrollTo(0, { duration: 1.4 }) : window.scrollTo(0, 0); return; }
   if (busy) return; busy = true;
-  const label = r.view === 'bottega' ? 'La bottega' : r.view === 'prodotto' ? (byId(r.id) || P[0]).name : 'Mulino del Frate';
+  const label = r.view === 'checkout' ? 'Pagamento' : r.view === 'bottega' ? 'La bottega' : r.view === 'prodotto' ? (byId(r.id) || P[0]).name : 'Mulino del Frate';
   cWord.textContent = label;
   if (RM) { show(r); busy = false; return; }
   lock(true);
@@ -294,6 +301,7 @@ function renderCart() {
   $('#lines').innerHTML = ids.length ? ids.map(id => { const p = byId(id); return `<div class="cline"><div class="th"><img src="${snapSrc(p)}" data-snap="${p.id}" alt=""></div><div><h4>${p.name}</h4><div class="step"><button data-dec="${id}" aria-label="Togli uno">-</button><span>${cart[id]}</span><button data-inc="${id}" aria-label="Aggiungi uno">+</button></div></div><span class="p">${eur(cost(p) * cart[id])}</span></div>`; }).join('')
     : `<div class="empty">Il carrello è vuoto.<br><a href="#bottega" data-go="bottega" class="oval">Vai alla bottega</a></div>`;
   $('#total').textContent = eur(total());
+  if (typeof current !== 'undefined' && current === 'checkout' && !$('#coGrid').hidden) renderCheckout();
 }
 function scrimOn(on) { gsap.to(scrim, { autoAlpha: on ? 1 : 0, duration: .45 }); }
 function openCart() {
@@ -400,6 +408,84 @@ function armPromo() {
   clearTimeout(promoTimer); promoTimer = setTimeout(() => current === 'home' && openPromo(), 20000);
 }
 
+
+/* ================= pagamento ================= */
+const SHIP = 7.9, FREE_FROM = 49;   // valori di esempio, da confermare
+const coForm = $('#coForm');
+const shipping = () => (coForm.ship.value === 'ritiro' || total() >= FREE_FROM) ? 0 : SHIP;
+function renderCheckout() {
+  const ids = Object.keys(cart).filter(byId);
+  const empty = !ids.length;
+  $('#coEmpty').hidden = !empty; $('#coGrid').hidden = empty; $('#coDone').hidden = true;
+  $('#coTitle').textContent = "Completa l'ordine"; $('.co-lead').hidden = false;
+  if (empty) return;
+  $('#sumLines').innerHTML = ids.map(id => { const p = byId(id); return `<li><span class="sum-th"><img src="${snapSrc(p)}" data-snap="${p.id}" alt=""><i>${cart[id]}</i></span><span class="sum-n">${p.name}</span><span class="sum-p">${SALE[p.id] ? `<s>${eur(p.price * cart[id])}</s><br>` : ''}${eur(cost(p) * cart[id])}</span></li>`; }).join('');
+  updateTotals();
+}
+function updateTotals() {
+  const sub = total(), full = Object.entries(cart).reduce((s, [id, q]) => s + (byId(id) ? byId(id).price * q : 0), 0);
+  const pick = coForm.ship.value === 'ritiro', sh = shipping(), tot = sub + sh;
+  $('#sumSub').textContent = eur(full);
+  $('#sumSaveRow').hidden = full - sub < .01; $('#sumSave').textContent = '− ' + eur(full - sub);
+  $('#sumShipLabel').textContent = pick ? 'Ritiro al Mulino' : 'Spedizione';
+  $('#sumShip').textContent = sh ? eur(sh) : 'Gratis';
+  $('#sumTot').textContent = eur(tot); $('#sumTotSmall').textContent = eur(tot);
+  $('#shipCost').textContent = sub >= FREE_FROM ? 'Gratis' : eur(SHIP);
+  $('#sumFree').textContent = pick ? 'Nessun costo di spedizione: Lucilla ti scrive per fissare il ritiro.' : sub >= FREE_FROM ? 'La spedizione è gratuita.' : `Aggiungi ${eur(FREE_FROM - sub)} per la spedizione gratuita.`;
+  $('#payBtn').textContent = 'Paga ' + eur(tot);
+}
+function syncDelivery() {
+  const pick = coForm.ship.value === 'ritiro';
+  $('#addr').hidden = pick; $('#pick').hidden = !pick; $('#payPick').hidden = !pick;
+  $$('#addr [data-req]').forEach(i => i.required = !pick);
+  ['pnome', 'pcognome'].forEach(n => coForm[n].required = pick);
+  if (!pick && coForm.pay.value === 'ritiro') coForm.pay.value = 'carta';
+  $('#cardBox').hidden = coForm.pay.value !== 'carta';
+  coForm.cf.required = coForm.fattura.checked; $('#invoice').hidden = !coForm.fattura.checked;
+  updateTotals();
+}
+$$('#addr input[required]').forEach(i => i.dataset.req = '1');
+coForm.addEventListener('change', syncDelivery);
+coForm.prov.addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
+coForm.cap.addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g, ''));
+coForm.addEventListener('focusout', e => { const l = e.target.closest('.fl'); if (l && e.target.value) l.classList.toggle('bad', !e.target.checkValidity()); });
+coForm.addEventListener('input', e => { const l = e.target.closest('.fl'); if (l && l.classList.contains('bad') && e.target.checkValidity()) l.classList.remove('bad'); });
+$('#sumToggle').addEventListener('click', () => { const s = $('#coSum'), o = !s.classList.contains('open'); s.classList.toggle('open', o); $('#sumToggle').setAttribute('aria-expanded', o); $('#sumToggle').firstChild.textContent = o ? 'Nascondi il riepilogo ' : 'Mostra il riepilogo '; });
+coForm.addEventListener('submit', e => {
+  e.preventDefault();
+  let first = null;
+  $$('input, select, textarea', coForm).forEach(i => {
+    const ok = i.checkValidity(), l = i.closest('.fl') || i.closest('.chk');
+    if (l) l.classList.toggle('bad', !ok);
+    if (!ok && !first) first = i;
+  });
+  if (first) {
+    $('#coErr').textContent = 'Controlla i campi segnati in rosso.';
+    (lenis ? lenis.scrollTo(first, { offset: -140, duration: 1 }) : first.scrollIntoView({ block: 'center' }));
+    setTimeout(() => first.focus({ preventScroll: true }), 500);
+    return;
+  }
+  $('#coErr').textContent = '';
+  const f = new FormData(coForm), pick = f.get('ship') === 'ritiro';
+  const lines = Object.entries(cart).filter(([id]) => byId(id)).map(([id, q]) => `${q} x ${byId(id).name}`).join(', ');
+  const tot = total() + shipping();
+  const payTxt = { carta: 'carta', paypal: 'PayPal', bonifico: 'bonifico bancario', ritiro: 'pagamento al ritiro' }[f.get('pay')];
+  const who = pick ? `${f.get('pnome')} ${f.get('pcognome')}` : `${f.get('nome')} ${f.get('cognome')}`;
+  const where = pick ? 'Ritiro al Mulino, Via della Torre 17, Roncobilaccio' : `${f.get('via')}${f.get('via2') ? ', ' + f.get('via2') : ''}, ${f.get('cap')} ${f.get('citta')} (${f.get('prov')})`;
+  const done = $('#coDone');
+  done.innerHTML = `<span class="sim">Simulazione della bozza</span>
+    <h2>Grazie, ${(pick ? f.get('pnome') : f.get('nome'))}.</h2>
+    <p>Nel sito vero a questo punto il pagamento viene confermato e ricevi la conferma all'indirizzo <b></b>. Qui non è stato addebitato niente e i dati non sono stati inviati.</p>
+    <div class="recap"><h3>Prodotti</h3><p>${lines}</p><h3>Consegna</h3><p class="r-where"></p><h3>Pagamento</h3><p>${payTxt}, totale ${eur(tot)}</p></div>
+    <a href="#bottega" data-go="bottega" class="oval">Torna allo shop</a>`;
+  $('b', done).textContent = f.get('email'); $('.r-where', done).textContent = `${who}, ${where}`;
+  $('#coGrid').hidden = true; done.hidden = false;
+  $('#coTitle').textContent = 'Ordine ricevuto'; $('.co-lead').hidden = true;
+  cart = {}; save(); renderCart();
+  toTop();
+  if (!RM) gsap.from('#coDone > *', { y: 40, opacity: 0, stagger: .08, duration: 1, ease: 'expo.out' });
+});
+
 /* ================= toast ================= */
 const tEl = $('#toast'); let tTl;
 gsap.set(tEl, { xPercent: -50, yPercent: 160 });
@@ -423,7 +509,8 @@ document.addEventListener('click', e => {
   if (t.matches('[data-close-modal]')) { closeModal(); return; }
   if (t.matches('[data-gift]')) { formModal('gift'); return; }
   if (t.matches('[data-contact]')) { e.preventDefault(); if (menuOpen) toggleMenu(false); formModal('contact'); return; }
-  if (t.id === 'checkout') { if (!count()) { toast('Il carrello è vuoto'); return; } closeCart(); formModal('order'); return; }
+  if (t.id === 'checkout') { if (!count()) { toast('Il carrello è vuoto'); return; } closeCart(); go('pagamento'); return; }
+  if (t.matches('[data-express]')) { toast(`${t.dataset.express}: nella bozza il pagamento rapido non è attivo`); return; }
   if (t.id === 'cardsNext') { const c = $('#cards'); c.scrollBy({ left: c.clientWidth * .6, behavior: RM ? 'auto' : 'smooth' }); return; }
   if (t.matches('[data-f]')) {
     $$('#filters button').forEach(b => b.setAttribute('aria-pressed', b === t));

@@ -350,4 +350,81 @@ s{opacity:.55;font-weight:400}
 .cursor.off{opacity:0}
 .cursor.text .c-ring{opacity:0}
 
+
+/* ---------------- pagamento ---------------- */
+.co{background:var(--cream);border-radius:var(--r) var(--r) 0 0;min-height:calc(100svh - var(--nav));padding:clamp(40px,6vw,90px) clamp(20px,4vw,60px) 100px}
+.co-head{max-width:1180px;margin:0 auto 40px}
+.co-head h1{font-size:clamp(56px,7vw,110px);line-height:.9;text-transform:uppercase;margin:10px 0 16px}
+.co-lead{font-size:15px;max-width:52ch;opacity:.8}
+.crumb-btn{font:500 11px/1 var(--sans)}
+.crumb-btn:hover{color:var(--brown)}
+.co-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(30px,5vw,80px);align-items:start}
+.co-form fieldset{border:0;margin:0 0 38px;padding:0}
+.co-form legend{font:400 34px/1 var(--serif);margin-bottom:18px;padding:0}
+.co-k{font:600 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.express{margin-bottom:34px}
+.express-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.xp{min-height:50px;border-radius:6px;font:600 15px/1 var(--sans);background:var(--ink);color:var(--cream);transition:transform .4s var(--ease),background .3s}
+.xp:first-child{background:#ffc439;color:#14213d}
+.xp:hover{transform:translateY(-2px)}
+.or{display:flex;align-items:center;gap:14px;margin-top:26px;font:500 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.05em;opacity:.6}
+.or::before,.or::after{content:"";flex:1;height:1px;background:currentColor;opacity:.4}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.f3{display:grid;grid-template-columns:.8fr 1.6fr .7fr;gap:14px}
+.fl{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;font:600 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.04em}
+.fl input,.fl select,.fl textarea{font:400 16px/1.4 var(--sans);text-transform:none;letter-spacing:0;padding:13px 14px;border:1px solid rgba(0,0,0,.22);background:#fbfaf7;color:var(--ink);border-radius:4px;transition:border-color .25s,box-shadow .25s}
+.fl input:focus,.fl select:focus,.fl textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(242,179,61,.35)}
+.fl .err{display:none;font:500 12px/1.3 var(--sans);text-transform:none;letter-spacing:0;color:#a1421c}
+.fl.bad input{border-color:#a1421c}
+.fl.bad .err{display:block}
+.chk{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.45;margin:6px 0 14px;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--ink);flex:none;margin:1px 0 0}
+.chk.bad span{color:#a1421c}
+.opts{display:grid;gap:10px;margin-bottom:18px}
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:16px 18px;border:1px solid rgba(0,0,0,.18);border-radius:6px;background:#fbfaf7;cursor:pointer;transition:border-color .25s,background .25s}
+.opt input{width:20px;height:20px;accent-color:var(--ink);margin:0}
+.opt:has(input:checked){border-color:var(--ink);background:#fff8e8}
+.opt-b{display:flex;flex-direction:column;gap:4px}
+.opt-b b{font:600 14px/1.2 var(--sans)}
+.opt-b small{font-size:13px;opacity:.7;line-height:1.4}
+.opt-p{font:600 14px/1 var(--sans);white-space:nowrap}
+.hint-t{font-size:13.5px;opacity:.75;margin:-2px 0 14px;max-width:56ch}
+.card-box{display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px dashed rgba(0,0,0,.3);border-radius:6px;font-size:13.5px;line-height:1.5;background:rgba(255,255,255,.5)}
+.card-box svg{width:26px;height:26px;flex:none}
+.legal{margin-top:-6px}
+.err-form{color:#a1421c;font:500 13px/1.4 var(--sans);min-height:1em;margin:6px 0 10px}
+.pay{width:100%;min-height:58px;font-size:13px}
+.co-sum{position:sticky;top:calc(var(--nav) + 24px);background:var(--sand);border-radius:var(--r);padding:28px}
+.sum-toggle{display:none}
+.co-sum h2{font-size:34px;margin-bottom:18px}
+.sum-lines{list-style:none;margin:0;padding:0}
+.sum-lines li{display:grid;grid-template-columns:62px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.1)}
+.sum-th{position:relative;width:62px;height:72px;background:var(--cream);border-radius:6px;display:grid;place-items:center}
+.sum-th img{max-height:64px;max-width:52px}
+.sum-th i{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;border-radius:11px;background:var(--ink);color:var(--cream);font:600 11px/22px var(--sans);text-align:center;font-style:normal;padding:0 6px}
+.sum-n{font:italic 400 19px/1.1 var(--serif)}
+.sum-p{font:500 13px/1.3 var(--sans);text-align:right;white-space:nowrap}
+.sum-tot{margin:18px 0 0}
+.sum-tot div{display:flex;justify-content:space-between;padding:7px 0;font-size:14px}
+.sum-tot dd{margin:0;font-weight:500}
+.sum-tot .grand{border-top:1px solid rgba(0,0,0,.2);margin-top:8px;padding-top:14px;font:400 30px/1 var(--serif)}
+.sum-note{font-size:12.5px;opacity:.75;margin-top:12px}
+.co-empty{max-width:1180px;margin:0 auto;font:italic 28px/1.3 var(--serif)}
+.co-empty .oval{margin-top:24px}
+.co-done{max-width:760px;margin:0 auto;text-align:center}
+.co-done h2{font-size:clamp(48px,6vw,90px);line-height:.95;margin:10px 0 20px}
+.co-done p{font-size:15px;max-width:52ch;margin:0 auto 14px}
+.co-done .sim{display:inline-block;font:600 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;background:var(--ink);color:var(--cream);padding:9px 14px;border-radius:999px}
+.co-done .recap{text-align:left;background:var(--sand);border-radius:var(--r);padding:24px;margin:30px 0}
+.co-done .recap h3{font:600 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;margin:0 0 10px}
+.co-done .recap p{margin:0 0 18px;max-width:none}
+@media(max-width:900px){
+  .co-grid{grid-template-columns:1fr}
+  .co-sum{position:static;order:-1;padding:0;background:none}
+  .sum-toggle{display:flex;justify-content:space-between;width:100%;min-height:52px;align-items:center;padding:0 18px;background:var(--sand);border-radius:6px;font:600 13px/1 var(--sans)}
+  .sum-body{display:none;background:var(--sand);border-radius:6px;padding:20px;margin-top:8px}
+  .co-sum.open .sum-body{display:block}
+}
+@media(max-width:560px){.f2,.f3{grid-template-columns:1fr}.express-row{grid-template-columns:1fr}}
+
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}

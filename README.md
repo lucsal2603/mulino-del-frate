@@ -16,7 +16,8 @@ poi aprire http://localhost:8000.
 ## Stack
 - GSAP 3.13 (ScrollTrigger, SplitText) e Lenis, caricati da CDN
 - Instrument Serif e Inter da Google Fonts
-- Viste: home, `#bottega` (categoria) e `#prodotto-<id>` (scheda prodotto)
+- Viste: home, `#bottega` (categoria), `#prodotto-<id>` (scheda prodotto) e `#pagamento` (checkout come ospite)
+- `jars.js`: prodotti in 3D (Three.js) con etichette ridisegnate
 
 ## File
 - `index.html`, `style.css`, `app.js`
