@@ -304,7 +304,11 @@ p{margin:0}
 
 /* ---------------- pannello offerte / più amati ---------------- */
 .promo{position:fixed;right:18px;bottom:84px;z-index:65;width:min(380px,calc(100vw - 24px));max-height:calc(100svh - 160px);overflow:auto;background:var(--cream);color:var(--ink);border-radius:var(--r);padding:26px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.35);visibility:hidden}
-.promo .x{position:absolute;top:10px;right:10px}
+.promo-x{position:absolute;top:12px;right:12px;z-index:2;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--cream);transition:background .25s,transform .4s var(--ease)}
+.promo-x::before{content:"";position:absolute;inset:-8px}
+.promo-x svg{width:18px;height:18px;stroke-width:2.2;pointer-events:none}
+.promo-x:hover{background:var(--brown);transform:scale(1.08)}
+.promo .kicker{padding-right:56px}
 .promo .kicker{margin-bottom:12px}
 .promo h2{font-size:40px;line-height:.95;margin-bottom:18px}
 .ptabs{display:flex;gap:6px;margin-bottom:10px}
@@ -469,6 +473,9 @@ s{opacity:.55;font-weight:400}
 .ct-v{overflow-wrap:anywhere}
 a.ct:hover{background:#fff8e8}
 .ct-i{width:26px;height:26px;flex:none;margin-top:2px}
+.wa-i{width:34px;height:34px;margin-top:0}
+.ct.big.wa{background:#0f2a1c;border-color:#0f2a1c}
+a.ct.big.wa:hover{background:#13382a}
 .ct-k{display:block;font:600 10.5px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;opacity:.6;margin-bottom:6px}
 .ct-v{display:block;font:400 19px/1.25 var(--serif)}
 .ct.big{background:var(--ink);color:var(--cream);border-color:var(--ink)}

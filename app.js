@@ -317,12 +317,12 @@ function scrimOn(on) { gsap.to(scrim, { autoAlpha: on ? 1 : 0, duration: .45 });
 function openCart() {
   renderCart(); drawerOpen = true; drawer.setAttribute('aria-hidden', 'false'); lock(true); scrimOn(true);
   gsap.set(drawer, { visibility: 'visible' });
-  gsap.fromTo(drawer, { xPercent: 100 }, { xPercent: 0, duration: RM ? 0 : .9, ease: 'expo.out' });
+  gsap.fromTo(drawer, { xPercent: 100 }, { xPercent: 0, duration: RM ? 0 : .9, ease: 'expo.out', overwrite: true });
   if (!RM) gsap.from('#lines > *', { x: 50, opacity: 0, stagger: .06, duration: .8, ease: 'expo.out', delay: .2 });
 }
 function closeCart() {
   if (!drawerOpen) return; drawerOpen = false; drawer.setAttribute('aria-hidden', 'true');
-  gsap.to(drawer, { xPercent: 100, duration: RM ? 0 : .6, ease: 'expo.in', onComplete: () => gsap.set(drawer, { visibility: 'hidden' }) });
+  gsap.to(drawer, { xPercent: 100, duration: RM ? 0 : .6, ease: 'expo.in', overwrite: true, onComplete: () => { if (!drawerOpen) gsap.set(drawer, { visibility: 'hidden' }); } });
   if (!modalOpen) { scrimOn(false); if (!menuOpen) lock(false); }
 }
 function addToCart(id, q, fromImg) {
@@ -350,13 +350,13 @@ function openModal(html) {
   box.innerHTML = `<button class="x" data-close-modal aria-label="Chiudi"><svg><use href="#i-x"/></svg></button>${html}`;
   modalOpen = true; modal.setAttribute('aria-hidden', 'false'); lock(true); scrimOn(true);
   gsap.set(modal, { visibility: 'visible' });
-  gsap.fromTo(box, { y: 90, opacity: 0, rotation: 1.5 }, { y: 0, opacity: 1, rotation: 0, duration: RM ? 0 : 1, ease: 'expo.out' });
+  gsap.fromTo(box, { y: 90, opacity: 0, rotation: 1.5 }, { y: 0, opacity: 1, rotation: 0, duration: RM ? 0 : 1, ease: 'expo.out', overwrite: true });
   setTimeout(() => { const f = $('input', box) || $('[data-close-modal]', box); f && f.focus(); }, 60);
 }
 function closeModal() {
   if (!modalOpen) return; modalOpen = false; modal.setAttribute('aria-hidden', 'true');
   document.documentElement.classList.remove('qv-open'); box.classList.remove('qv');
-  gsap.to(box, { y: 50, opacity: 0, duration: .35, ease: 'power2.in', onComplete: () => gsap.set(modal, { visibility: 'hidden' }) });
+  gsap.to(box, { y: 50, opacity: 0, duration: .35, ease: 'power2.in', overwrite: true, onComplete: () => { if (!modalOpen) gsap.set(modal, { visibility: 'hidden' }); } });
   if (!drawerOpen) { scrimOn(false); if (!menuOpen) lock(false); }
 }
 function quickView(id) {
@@ -422,12 +422,14 @@ function openPromo(force) {
   if (!force && seen()) return;
   clearTimeout(promoTimer);
   promoOpen = true; markSeen(); promo.setAttribute('aria-hidden', 'false'); promoList();
+  gsap.killTweensOf(promo);
   gsap.set(promo, { visibility: 'visible' });
-  gsap.fromTo(promo, { xPercent: 110, rotation: 3 }, { xPercent: 0, rotation: 0, duration: RM ? 0 : 1.1, ease: 'expo.out' });
+  gsap.fromTo(promo, { xPercent: 110, rotation: 3 }, { xPercent: 0, rotation: 0, duration: RM ? 0 : 1.1, ease: 'expo.out', overwrite: true });
 }
 function closePromo() {
   if (!promoOpen) return; promoOpen = false; markSeen(); clearTimeout(promoTimer); promo.setAttribute('aria-hidden', 'true');
-  gsap.to(promo, { xPercent: 110, duration: RM ? 0 : .6, ease: 'expo.in', onComplete: () => gsap.set(promo, { visibility: 'hidden' }) });
+  gsap.killTweensOf(promo); // ferma l'entrata se è ancora in corso: altrimenti il pannello restava a schermo
+  gsap.to(promo, { xPercent: 110, rotation: 0, duration: RM ? 0 : .5, ease: 'power3.in', overwrite: true, onComplete: () => gsap.set(promo, { visibility: 'hidden' }) });
 }
 let promoTimer = null;
 function armPromo() {
