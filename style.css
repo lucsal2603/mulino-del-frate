@@ -37,7 +37,7 @@ p{margin:0}
 [hidden]{display:none!important}
 
 /* ---------------- curtain ---------------- */
-#curtain{position:fixed;inset:0;z-index:100;background:var(--black);color:var(--cream);display:grid;place-items:center;pointer-events:none}
+#curtain{position:fixed;inset:0;z-index:100;will-change:transform;background:var(--black);color:var(--cream);display:grid;place-items:center;pointer-events:none}
 #curtainWord{font:400 clamp(30px,4vw,56px)/1 var(--serif);text-transform:uppercase;letter-spacing:.01em;overflow:hidden;display:block}
 
 /* ---------------- nav ---------------- */
@@ -126,11 +126,13 @@ p{margin:0}
 .giant.light{color:var(--cream)}
 .jar-rise{position:relative;z-index:2;pointer-events:none;height:clamp(300px,34vw,520px);aspect-ratio:.84;margin:-17vw auto 0;will-change:transform}
 .jar-fallback{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 24px 20px rgba(50,40,30,.28))}
-.jars-on .jar-fallback{visibility:hidden}
 [data-jar]{position:relative;isolation:isolate}
 [data-jar]::after{content:"";position:absolute;left:8%;right:8%;bottom:0;height:9%;background:radial-gradient(closest-side,rgba(45,34,22,.32),rgba(45,34,22,0));pointer-events:none;z-index:-1}
 .jars-on [data-jar]::after{transform:translateY(35%)}
-.jar-cv{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.jar-cv{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;animation:jarIn .7s ease both}
+@keyframes jarIn{from{opacity:0}}
+.jar-fallback{transition:opacity .6s}
+.jars-on .jar-fallback{opacity:0}
 .antico-cta{margin-top:40px}
 
 /* ---------------- film (miele che cola) ---------------- */
@@ -508,4 +510,7 @@ a.ct.big:hover{background:#2a241c}
 .d-short{display:none}
 @media(max-width:760px){.d-long{display:none}.d-short{display:inline}.draft{left:6px;bottom:8px}}
 @media(max-width:360px){.brand-name{font-size:13.5px}.brand-sub{display:none}.nav-right{gap:6px}.shop-link{padding:0 9px;font-size:10px;gap:5px}}
+/* immagini che si muovono con lo scroll: alla scheda video, senza ridisegnare */
+#heroImg,#filmImg,#bannerImg,#lifeImg,[data-speed],.shelf,.cat .engr-bg img{will-change:transform}
+@media(max-width:760px){.hero-img img{width:auto;max-width:none;object-fit:cover;object-position:0 64%;position:absolute;left:0;top:0}}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}

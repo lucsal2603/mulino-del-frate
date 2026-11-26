@@ -138,7 +138,7 @@ const scenes = {
     if (!seen()) ScrollTrigger.create({ trigger: '#antico', start: 'bottom 60%', once: true, onEnter: () => setTimeout(() => openPromo(), 600) });
     armPromo();
     gsap.to('#heroImg', { yPercent: 14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-    if (innerWidth < 760) gsap.fromTo('#heroImg', { objectPosition: '0% 64%' }, { objectPosition: '100% 64%', duration: 14, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: first ? 2 : .5 });
+    if (innerWidth < 760) { const im = $('#heroImg'), fr = $('#heroFrame'); gsap.fromTo(im, { x: 0 }, { x: () => -(im.offsetWidth - fr.clientWidth), duration: 14, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: first ? 2 : .5 }); }
     gsap.to('#heroTitle', { yPercent: 40, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
 
     $$('[data-speed]').forEach(im => gsap.fromTo(im, { yPercent: 0 }, { yPercent: +im.dataset.speed, ease: 'none', scrollTrigger: { trigger: im.closest('section'), start: 'top bottom', end: 'bottom top', scrub: true } }));
@@ -154,7 +154,7 @@ const scenes = {
 
     const set = buildDrip($('#dripG')), o = { p: 0 };
     gsap.to(o, { p: 1, ease: 'none', onUpdate: () => set(o.p), scrollTrigger: { trigger: '#filmBox', start: 'top 80%', end: 'center 35%', scrub: 1 } });
-    gsap.fromTo('#filmBox', { scale: .9, borderRadius: 40 }, { scale: 1, borderRadius: 16, ease: 'none', scrollTrigger: { trigger: '#filmBox', start: 'top bottom', end: 'top 25%', scrub: true } });
+    gsap.fromTo('#filmBox', { scale: .92 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '#filmBox', start: 'top bottom', end: 'top 25%', scrub: true } });
     gsap.fromTo('#filmImg', { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: '#filmBox', start: 'top bottom', end: 'bottom top', scrub: true } });
 
     gsap.from('.kicker', { y: 20, opacity: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.kicker', start: 'top 90%' } });
@@ -178,7 +178,7 @@ const scenes = {
     linesIn($('#bannerTitle'));
     giantIn($('#visitaTitle'));
     gsap.from('.contacts > *', { y: 30, opacity: 0, stagger: .07, duration: 1, ease: 'expo.out', clearProps: 'all', scrollTrigger: { trigger: '.contacts', start: 'top 85%' } });
-    gsap.fromTo('.map-box', { clipPath: 'inset(12% 8% 12% 8% round 16px)' }, { clipPath: 'inset(0% 0% 0% 0% round 16px)', ease: 'none', scrollTrigger: { trigger: '.map-box', start: 'top 95%', end: 'top 45%', scrub: true } });
+    gsap.from('.map-box', { y: 60, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '.map-box', start: 'top 90%' } });
     gsap.from('.banner .oval', { scale: .6, opacity: 0, duration: 1.1, ease: 'back.out(1.7)', scrollTrigger: { trigger: '.banner .oval', start: 'top 92%' } });
   },
   bottega() {
@@ -266,12 +266,12 @@ function navigate(r) {
   if (RM) { show(r); busy = false; return; }
   lock(true);
   gsap.timeline({ onComplete: () => { busy = false; lock(false); } })
-    .set(curtain, { yPercent: 100, borderRadius: '40px 40px 0 0', display: 'grid' })
-    .to(curtain, { yPercent: 0, borderRadius: '0px 0px 0 0', duration: .8, ease: 'expo.inOut' })
+    .set(curtain, { yPercent: 100, display: 'grid' })
+    .to(curtain, { yPercent: 0, duration: .8, ease: 'expo.inOut' })
     .fromTo(cWord, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .6, ease: 'expo.out' }, '-=.3')
     .add(() => show(r))
     .to(cWord, { yPercent: -60, opacity: 0, duration: .4, ease: 'power2.in' }, '+=.15')
-    .to(curtain, { yPercent: -100, borderRadius: '0 0 40px 40px', duration: .9, ease: 'expo.inOut' }, '-=.1')
+    .to(curtain, { yPercent: -100, duration: .9, ease: 'expo.inOut' }, '-=.1')
     .set(curtain, { display: 'none' });
 }
 let pendingTo = null;
@@ -655,6 +655,15 @@ let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTime
   io.observe($('#map'));
 }
 
+/* ================= 3D: si carica dopo l'apertura, nei momenti liberi ================= */
+let jarsLoaded = false;
+function loadJars() {
+  if (jarsLoaded) return; jarsLoaded = true;
+  const go = () => { const sc = document.createElement('script'); sc.type = 'module'; sc.src = 'jars.js'; document.body.appendChild(sc); };
+  window.requestIdleCallback ? requestIdleCallback(go, { timeout: 1200 }) : setTimeout(go, 300);
+}
+setTimeout(loadJars, 6000); // rete di sicurezza
+
 /* ================= avvio ================= */
 renderCart();
 const heroImg = $('#heroImg');
@@ -663,12 +672,12 @@ ready.then(() => {
   const r = parse();
   const w = new SplitText(cWord, { type: 'chars', mask: 'chars' });
   show(r, true);
-  if (RM) { curtain.style.display = 'none'; return; }
+  if (RM) { curtain.style.display = 'none'; loadJars(); return; }
   lock(true);
-  gsap.timeline({ onComplete: () => { lock(false); w.revert(); } })
+  gsap.timeline({ onComplete: () => { lock(false); w.revert(); setTimeout(loadJars, 900); } })
     .from(w.chars, { yPercent: 110, duration: .9, ease: 'expo.out', stagger: .03 })
     .to(w.chars, { yPercent: -110, duration: .6, ease: 'expo.in', stagger: .015 }, '+=.25')
-    .to(curtain, { yPercent: -100, borderRadius: '0 0 40px 40px', duration: 1.1, ease: 'expo.inOut' }, '-=.2')
+    .to(curtain, { yPercent: -100, duration: 1.1, ease: 'expo.inOut' }, '-=.2')
     .set(curtain, { display: 'none' });
 });
 }

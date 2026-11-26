@@ -5,6 +5,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const idle = () => new Promise(r => window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 250 }) : setTimeout(r, 30));
+const SMALL = innerWidth < 760;
 const V2 = (x, y) => new THREE.Vector2(x, y);
 
 /* ------------------------------------------------------------------ testi etichette */
@@ -30,8 +32,8 @@ function paper(ctx, W, H, base = '#efe2c4') {
   g.addColorStop(0, 'rgba(120,90,50,.06)'); g.addColorStop(.5, 'rgba(255,255,255,.05)'); g.addColorStop(1, 'rgba(120,90,50,.08)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  for (let i = 0; i < 2600; i++) { ctx.strokeStyle = `rgba(${Math.random() > .5 ? '255,255,250' : '120,95,60'},${.05 + Math.random() * .06})`; ctx.lineWidth = .8 + Math.random() * 1.4; const px = Math.random() * W, py = Math.random() * H, a = Math.random() * Math.PI, l = 6 + Math.random() * 26; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * l, py + Math.sin(a) * l); ctx.stroke(); }
-  for (let i = 0; i < 5000; i++) { ctx.fillStyle = `rgba(${rnd() > .5 ? '90,70,40' : '255,255,255'},${.03 + rnd() * .04})`; ctx.fillRect(rnd() * W, rnd() * H, 1 + rnd() * 3, 1 + rnd() * 3); }
+  for (let i = 0; i < 1400; i++) { ctx.strokeStyle = `rgba(${Math.random() > .5 ? '255,255,250' : '120,95,60'},${.05 + Math.random() * .06})`; ctx.lineWidth = .8 + Math.random() * 1.4; const px = Math.random() * W, py = Math.random() * H, a = Math.random() * Math.PI, l = 6 + Math.random() * 26; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * l, py + Math.sin(a) * l); ctx.stroke(); }
+  for (let i = 0; i < 2500; i++) { ctx.fillStyle = `rgba(${rnd() > .5 ? '90,70,40' : '255,255,255'},${.03 + rnd() * .04})`; ctx.fillRect(rnd() * W, rnd() * H, 1 + rnd() * 3, 1 + rnd() * 3); }
 }
 function strip(ctx, kind, x, y, w, h, logo) {
   ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
@@ -126,11 +128,11 @@ const mk = (W, H, draw) => { const c = document.createElement('canvas'); c.width
 let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 const paperBump = () => mk(1024, 512, (x, W, H) => {
   x.fillStyle = '#808080'; x.fillRect(0, 0, W, H);
-  for (let i = 0; i < 9000; i++) { x.strokeStyle = `rgba(${rnd() > .5 ? 255 : 0},${rnd() > .5 ? 255 : 0},${rnd() > .5 ? 255 : 0},.06)`; x.strokeStyle = rnd() > .5 ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.07)'; x.lineWidth = .6 + rnd(); const px = rnd() * W, py = rnd() * H, a = rnd() * Math.PI, l = 3 + rnd() * 14; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke(); }
+  for (let i = 0; i < 4000; i++) { x.strokeStyle = `rgba(${rnd() > .5 ? 255 : 0},${rnd() > .5 ? 255 : 0},${rnd() > .5 ? 255 : 0},.06)`; x.strokeStyle = rnd() > .5 ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.07)'; x.lineWidth = .6 + rnd(); const px = rnd() * W, py = rnd() * H, a = rnd() * Math.PI, l = 3 + rnd() * 14; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke(); }
 });
 const granules = (base, spread) => mk(1024, 512, (x, W, H) => {
   x.fillStyle = base; x.fillRect(0, 0, W, H);
-  for (let i = 0; i < 26000; i++) { const v = (rnd() - .5) * spread; x.fillStyle = v > 0 ? `rgba(255,248,225,${v})` : `rgba(120,80,20,${-v})`; const r = 1.2 + rnd() * 3.2; x.beginPath(); x.arc(rnd() * W, rnd() * H, r, 0, 7); x.fill(); }
+  for (let i = 0; i < 9000; i++) { const v = (rnd() - .5) * spread; x.fillStyle = v > 0 ? `rgba(255,248,225,${v})` : `rgba(120,80,20,${-v})`; const r = 1.2 + rnd() * 3.2; x.beginPath(); x.arc(rnd() * W, rnd() * H, r, 0, 7); x.fill(); }
   x.filter = 'blur(1px)'; x.drawImage(x.canvas, 0, 0); x.filter = 'none';
 });
 const cream = () => mk(1024, 512, (x, W, H) => {
@@ -138,7 +140,7 @@ const cream = () => mk(1024, 512, (x, W, H) => {
   for (let i = 0; i < 70; i++) { x.strokeStyle = `rgba(${rnd() > .5 ? '120,70,40' : '25,12,5'},${.08 + rnd() * .1})`; x.lineWidth = 4 + rnd() * 18; const y = rnd() * H; x.beginPath(); x.moveTo(-20, y); x.bezierCurveTo(W * .3, y + (rnd() - .5) * 80, W * .7, y + (rnd() - .5) * 80, W + 20, y + (rnd() - .5) * 40); x.stroke(); }
   for (let i = 0; i < 2500; i++) { x.fillStyle = `rgba(200,170,130,${.08 + rnd() * .15})`; x.fillRect(rnd() * W, rnd() * H, 1 + rnd() * 2, 1 + rnd() * 2); }
 });
-const plastic = () => mk(512, 512, (x, W, H) => { x.fillStyle = '#808080'; x.fillRect(0, 0, W, H); for (let i = 0; i < 12000; i++) { x.fillStyle = rnd() > .5 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)'; x.fillRect(rnd() * W, rnd() * H, 2, 2); } });
+const plastic = () => mk(512, 512, (x, W, H) => { x.fillStyle = '#808080'; x.fillRect(0, 0, W, H); for (let i = 0; i < 5000; i++) { x.fillStyle = rnd() > .5 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)'; x.fillRect(rnd() * W, rnd() * H, 2, 2); } });
 const ribs = n => mk(2048, 64, (x, W, H) => { for (let i = 0; i < n; i++) { const g = x.createLinearGradient(i * W / n, 0, (i + 1) * W / n, 0); g.addColorStop(0, '#404040'); g.addColorStop(.5, '#d0d0d0'); g.addColorStop(1, '#404040'); x.fillStyle = g; x.fillRect(i * W / n, 0, W / n + 1, H); } });
 const aoBlob = () => mk(256, 256, (x) => { const g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, '#fff'); g.addColorStop(.45, '#bbb'); g.addColorStop(.7, '#444'); g.addColorStop(1, '#000'); x.fillStyle = g; x.fillRect(0, 0, 256, 256); });
 
@@ -242,26 +244,31 @@ function creamJar(id) {
 /* ------------------------------------------------------------------ scena */
 let renderer, scene, camera, key, models = {};
 const state = new WeakMap();
-function build(logo) {
+async function build(logo) {
   T.paper = tex(paperBump(), { srgb: false, repeat: [3, 2] });
   T.plastic = tex(plastic(), { srgb: false, repeat: [4, 4] });
   T.ribs = tex(ribs(90), { srgb: false });
+  await idle();
   T.granCap = tex(granules('#808080', .35), { srgb: false, repeat: [3, 1] });
   T.honeySide = tex(honeycomb(2048, 88, 45), { repeat: [1, 1] }); T.honeySide.wrapS = THREE.RepeatWrapping;
   T.honeyTop = tex(honeycomb(1024, 1024, 70, true));
+  await idle();
   const creamMap = tex(cream(), { repeat: [2, 1] });
   const honeyMap = tex(granules('#e3c486', .16), { repeat: [1, 1] });
+  await idle();
   const honeyBump = tex(granules('#808080', .35), { srgb: false, repeat: [1, 1] });
+  await idle();
   models.castagnella = honeyJar('castagnella', logo, { fill: 7.0, cap: .72, map: creamMap, capColor: 0xc8b597, rough: .28, coat: .6, label: [2.05, 5.55], theta: 2.55 });
+  await idle();
   models.miele = honeyJar('miele', logo, { fill: 6.95, cap: .5, map: honeyMap, bump: honeyBump, bumpScale: .25, capColor: 0xf0e2bd, rough: .5, coat: .3, label: [1.75, 6.15], theta: 2.85 });
+  await idle();
   models.propoli = sprayBottle('propoli');
+  await idle();
   models.dopobarba = pet('dopobarba');
-  ['maschera', 'artiglio', 'calendula', 'polline', 'teatree'].forEach(id => models[id] = creamJar(id));
+  for (const id of ['maschera', 'artiglio', 'calendula', 'polline', 'teatree']) { await idle(); models[id] = creamJar(id); }
   const ao = tex(aoBlob(), { srgb: false });
   Object.values(models).forEach(m => {
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(m.r * 7, m.r * 7), new THREE.ShadowMaterial({ opacity: .22 }));
-    ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; m.g.add(ground);
-    const blob = new THREE.Mesh(new THREE.PlaneGeometry(m.r * 2.5, m.r * 2.5), new THREE.MeshBasicMaterial({ color: 0x1e140c, alphaMap: ao, transparent: true, opacity: .5, depthWrite: false, toneMapped: false }));
+    const blob = new THREE.Mesh(new THREE.PlaneGeometry(m.r * 2.5, m.r * 2.5), new THREE.MeshBasicMaterial({ color: 0x1e140c, alphaMap: ao, transparent: true, opacity: .62, depthWrite: false, toneMapped: false }));
     blob.rotation.x = -Math.PI / 2; blob.position.y = .005; blob.renderOrder = -1; m.g.add(blob);
     m.g.position.y = -m.h / 2; m.pivot = new THREE.Group(); m.pivot.add(m.g); m.pivot.visible = false; scene.add(m.pivot);
     m.mats = []; m.g.traverse(o => { if (o.material && !m.mats.includes(o.material)) { o.material.userData.base = o.material.opacity; o.material.userData.tr = o.material.transparent; m.mats.push(o.material); } });
@@ -308,8 +315,11 @@ function canvasFor(el) {
   if (!cv) { cv = document.createElement('canvas'); cv.className = 'jar-cv'; cv.setAttribute('aria-hidden', 'true'); el.appendChild(cv); }
   return cv;
 }
+let frame = 0, lastScroll = 0;
+addEventListener('scroll', () => { lastScroll = performance.now(); }, { passive: true });
 function render() {
   if (dirty) collect();
+  frame++;
   const dt = Math.min(clock.getDelta(), .05);
   const W = innerWidth, H = innerHeight, pr = renderer.getPixelRatio(), gl = renderer.domElement;
   for (const el of els) {
@@ -317,10 +327,17 @@ function render() {
     const r = el.getBoundingClientRect();
     if (r.width < 2 || r.height < 2 || r.bottom < -40 || r.top > H + 40 || r.right < 0 || r.left > W) continue;
     let st = state.get(el);
-    if (!st) { st = { a: +(el.dataset.angle || 0), v: 0, drag: false, bg: bgOf(el) }; state.set(el, st); bindDrag(el, st); }
+    if (!st) { st = { a: +(el.dataset.angle || 0), v: 0, drag: false, bg: bgOf(el), i: Math.random() < .5 ? 0 : 1, t: 0 }; state.set(el, st); bindDrag(el, st); }
+    st.t += dt;
+    const big = el.hasAttribute('data-drag') || r.height > 360;
+    const scrolling = performance.now() - lastScroll < 180;
+    // mentre si scorre, i riquadri piccoli restano fermi (la loro tela scorre già con la pagina) e i grandi vanno a fotogrammi alterni
+    if (!st.drag && ((scrolling && !big) || ((frame + st.i) % 2 && (!big || scrolling)))) continue;
+    renderer.transmissionResolutionScale = big ? .5 : .3;
+    const step = st.t; st.t = 0;
     const host = el.closest('.prod') || el;
     const speed = RM ? 0 : (+(el.dataset.speed || .35)) * (host.matches(':hover') ? 3 : 1);
-    if (!st.drag) { st.a += st.v * dt; st.v *= Math.pow(.04, dt); st.a += speed * dt; }
+    if (!st.drag) { st.a += st.v * step; st.v *= Math.pow(.04, step); st.a += speed * step; }
     m.pivot.rotation.set(0, st.a + (+(el.dataset.spin || 0)), +(el.dataset.tilt || 0));
     m.pivot.visible = true;
     frameCamera(camera, m, r.width / r.height, +(el.dataset.pad || 1.14));
@@ -348,11 +365,12 @@ function bindDrag(el, st) {
 
 /* ------------------------------------------------------------------ istantanee: rese sul canvas principale e copiate subito */
 const snaps = {};
-function makeSnaps() {
+async function makeSnaps() {
   const SW = 300, SH = 384, pr = renderer.getPixelRatio();
   const out = document.createElement('canvas'); out.width = SW * pr; out.height = SH * pr; const o = out.getContext('2d');
   const H = innerHeight;
-  Object.entries(models).forEach(([id, m]) => {
+  for (const [id, m] of Object.entries(models)) {
+    await idle();
     m.pivot.visible = true; m.pivot.rotation.set(0, -.3, 0); setOpacity(m, 1);
     frameCamera(camera, m, SW / SH, 1.04);
     renderer.setScissorTest(false); renderer.clear(); renderer.setScissorTest(true);
@@ -360,7 +378,7 @@ function makeSnaps() {
     o.clearRect(0, 0, out.width, out.height);
     o.drawImage(renderer.domElement, 0, (H - SH) * pr, SW * pr, SH * pr, 0, 0, out.width, out.height);
     snaps[id] = out.toDataURL('image/png'); m.pivot.visible = false;
-  });
+  }
   renderer.setScissorTest(false); renderer.clear();
 }
 function fillSnaps() { document.querySelectorAll('img[data-snap]').forEach(im => { const s = snaps[im.dataset.snap]; if (s && im.src !== s) im.src = s; }); }
@@ -370,33 +388,38 @@ async function start() {
   const canvas = document.createElement('canvas'); canvas.id = 'jarsCanvas';
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return; }
   if (!renderer.getContext()) return;
-  renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 760 ? 1.6 : 2)); renderer.setSize(innerWidth, innerHeight); renderer.setClearColor(0, 0); renderer.autoClear = false;
+  renderer.setPixelRatio(Math.min(devicePixelRatio, SMALL ? 1.25 : 1.5)); renderer.setSize(innerWidth, innerHeight); renderer.setClearColor(0, 0); renderer.autoClear = false;
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.0; renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.transmissionResolutionScale = .75;
-  maxAniso = renderer.capabilities.getMaxAnisotropy();
+  renderer.shadowMap.enabled = false; // l'ombra a terra è morbida e disegnata a parte: niente passaggio d'ombra a ogni fotogramma
+  renderer.transmissionResolutionScale = .5;
+  maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   scene = new THREE.Scene();
+  await idle();
   const pm = new THREE.PMREMGenerator(renderer);
   try {
     const b64 = (await import('./assets/studio-hdr.js')).default;
-    const bin = atob(b64), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    const d = new RGBELoader().parse(bytes.buffer);
+    let buf;
+    try { buf = await (await fetch('data:application/octet-stream;base64,' + b64)).arrayBuffer(); }
+    catch (e) { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); buf = u.buffer; }
+    await idle();
+    const d = new RGBELoader().parse(buf);
     const hdr = new THREE.DataTexture(d.data, d.width, d.height, THREE.RGBAFormat, d.type);
     hdr.colorSpace = THREE.LinearSRGBColorSpace; hdr.mapping = THREE.EquirectangularReflectionMapping; hdr.minFilter = hdr.magFilter = THREE.LinearFilter; hdr.generateMipmaps = false; hdr.flipY = true; hdr.needsUpdate = true;
+    await idle();
     scene.environment = pm.fromEquirectangular(hdr).texture; hdr.dispose();
   } catch (e) { scene.environment = pm.fromScene(new RoomEnvironment(), .04).texture; }
   scene.environmentRotation = new THREE.Euler(0, -.9, 0); scene.environmentIntensity = 1.05;
-  key = new THREE.DirectionalLight(0xfff4e6, 1.3); key.position.set(-2.5, 18, 5.5); key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024); key.shadow.camera.left = key.shadow.camera.bottom = -12; key.shadow.camera.right = key.shadow.camera.top = 12; key.shadow.camera.near = 1; key.shadow.camera.far = 40;
-  key.shadow.bias = -.0004; key.shadow.normalBias = .03; key.shadow.radius = 6;
+  key = new THREE.DirectionalLight(0xfff4e6, 1.3); key.position.set(-2.5, 18, 5.5);
   scene.add(key);
   camera = new THREE.PerspectiveCamera(18, 1, .1, 500);
   await Promise.all(['400 40px "Noto Sans"', '700 40px "Noto Sans"', '400 40px "Noto Serif"'].map(f => document.fonts.load(f)));
   const logo = await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = 'assets/logo-gallo.jpg'; });
-  build(logo);
-  Object.values(models).forEach(m => m.pivot.visible = true); renderer.compile(scene, camera); Object.values(models).forEach(m => m.pivot.visible = false);
-  Object.values(models).forEach(m => setOpacity(m, 1));
-  makeSnaps(); fillSnaps();
+  await build(logo);
+  Object.values(models).forEach(m => { setOpacity(m, 1); m.pivot.visible = true; });
+  await idle();
+  if (renderer.compileAsync) await renderer.compileAsync(scene, camera); else renderer.compile(scene, camera);
+  Object.values(models).forEach(m => m.pivot.visible = false);
+  await makeSnaps(); fillSnaps();
   document.documentElement.classList.add('jars-on');
   addEventListener('resize', () => renderer.setSize(innerWidth, innerHeight));
   if (window.gsap) gsap.ticker.add(render); else renderer.setAnimationLoop(render);
