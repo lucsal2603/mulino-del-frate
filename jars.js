@@ -252,7 +252,7 @@ let AO, LOGO;
 async function ready(id, m) {
   const blob = new THREE.Mesh(new THREE.PlaneGeometry(m.r * 2.5, m.r * 2.5), new THREE.MeshBasicMaterial({ color: 0x1e140c, alphaMap: AO, transparent: true, opacity: .62, depthWrite: false, toneMapped: false }));
   blob.rotation.x = -Math.PI / 2; blob.position.y = .005; blob.renderOrder = -1; m.g.add(blob);
-  m.g.position.y = -m.h / 2; m.pivot = new THREE.Group(); m.pivot.add(m.g); scene.add(m.pivot);
+  m.g.position.y = -m.h / 2; m.pivot = new THREE.Group(); m.pivot.add(m.g); m.pivot.visible = false; scene.add(m.pivot); // nascosto finché non è pronto
   m.mats = []; m.g.traverse(o => { if (o.material && !m.mats.includes(o.material)) { o.material.userData.base = o.material.opacity; o.material.userData.tr = o.material.transparent; m.mats.push(o.material); } });
   setOpacity(m, 1);
   await idle();

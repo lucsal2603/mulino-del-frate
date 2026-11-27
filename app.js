@@ -149,7 +149,7 @@ const scenes = {
     giantIn($('#anticoTitle'));
     const jr = $('#jarRise'), jt = { t: -.2, s: -2.4 };
     // su telefono il vasetto non viene spostato dallo scroll (lo scroll nativo lo farebbe andare a scatti): gira soltanto
-    if (innerWidth >= 760) gsap.fromTo('#jarRise', { y: '38vh' }, { y: '-6vh', ease: 'none', scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
+    if (innerWidth >= 760) gsap.fromTo('#jarRise', { y: '30vh' }, { y: '-3.5vh', ease: 'none', scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
     gsap.to(jt, { t: .12, s: 2.4, ease: 'none', onUpdate: () => { jr.dataset.tilt = jt.t; jr.dataset.spin = jt.s; }, scrollTrigger: { trigger: '#antico', start: 'top 85%', end: 'bottom 30%', scrub: true } });
 
     const set = buildDrip($('#dripG')), o = { p: 0 };
