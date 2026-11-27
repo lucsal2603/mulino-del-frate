@@ -457,7 +457,9 @@ async function makeSnaps() {
     renderer.setScissorTest(false); renderer.clear(); renderer.setScissorTest(true);
     renderer.setViewport(0, 0, SW, SH); renderer.setScissor(0, 0, SW, SH); renderer.setClearColor(0xe4ddd3, 1); renderer.render(scene, camera); renderer.setClearColor(0, 0);
     o.clearRect(0, 0, out.width, out.height);
-    o.drawImage(renderer.domElement, 0, (H - SH) * pr, SW * pr, SH * pr, 0, 0, out.width, out.height);
+    // il ritaglio parte dal fondo della tela reale (non dall'altezza della finestra, che sul telefono cambia con la barra degli indirizzi)
+    const gl = renderer.domElement;
+    o.drawImage(gl, 0, gl.height - SH * pr, SW * pr, SH * pr, 0, 0, out.width, out.height);
     snaps[id] = out.toDataURL('image/png'); m.pivot.visible = false;
   }
   renderer.setScissorTest(false); renderer.clear();

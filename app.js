@@ -221,8 +221,8 @@ function renderProduct(id) {
     <h1>${p.name}</h1>${tags()}
     <p class="desc">${p.d}</p>
     <div class="rows">${p.rows.map(r => `<div><b>${r[0]}</b>${r[1]}</div>`).join('')}<div><b>Formato</b>Da confermare</div></div>
-    <div class="price">${priceHTML(p)}${SALE[p.id] ? ` <span class="flag sale">-${Math.round(SALE[p.id] * 100)}%</span>` : ''}</div>
-    <div class="buy"><div class="step"><button data-q="-1" aria-label="Togli uno">-</button><span id="qty">1</span><button data-q="1" aria-label="Aggiungi uno">+</button></div><button class="blk" data-add="${p.id}">Aggiungi al carrello</button></div>
+    <div class="pdp-bar"><div class="pdp-bar-name">${p.name}</div><div class="price">${priceHTML(p)}${SALE[p.id] ? ` <span class="flag sale">-${Math.round(SALE[p.id] * 100)}%</span>` : ''}</div>
+    <div class="buy"><div class="step"><button data-q="-1" aria-label="Togli uno">-</button><span id="qty">1</span><button data-q="1" aria-label="Aggiungi uno">+</button></div><button class="blk" data-add="${p.id}">Aggiungi al carrello</button></div></div>
     <p class="small-note">Ritiro al Mulino su appuntamento o spedizione da concordare.</p>
   </div>`;
   const others = P.filter(x => x.id !== p.id && x.cat === p.cat).concat(P.filter(x => x.cat !== p.cat)).slice(0, 3);
@@ -367,12 +367,15 @@ function quickView(id) {
   const p = byId(id); if (!p) return;
   openModal(`<div class="qv-stage"><img class="eng" src="assets/inc-insegna.webp" alt=""><div class="qv-jarwrap"><div class="qv-jar" id="qvJar" data-jar="${p.id}" data-drag data-speed=".3" data-angle="-.4" data-pad="1.12" style="aspect-ratio:${DIM[p.id][1]};height:${Math.round(hp(p.id) * .8)}%" role="img" aria-label="${p.name}: trascina per ruotarlo"><img class="jar-fallback" src="${src(p)}" alt=""></div></div>
     <div class="hint"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M4 10h26M4 10l5-5M4 10l5 5M30 10l-5-5M30 10l-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Trascina per girarlo</div></div>
-    <div class="qv-info"><div class="crumbs"><span>${catName(p.cat)}</span></div>${flag(p)}<h2>${p.name}</h2>${tags()}
-      <p class="desc">${p.d}</p>
-      <div class="rows">${p.rows.map(r => `<div><b>${r[0]}</b>${r[1]}</div>`).join('')}</div>
-      <div class="price">${priceHTML(p)}</div>
-      <div class="buy"><div class="step"><button data-qv-q="-1" aria-label="Togli uno">-</button><span id="qvQty">1</span><button data-qv-q="1" aria-label="Aggiungi uno">+</button></div><button class="blk" data-qv-add="${p.id}">Aggiungi al carrello</button></div>
-      <button class="qv-more" data-qv-page="${p.id}">Vedi la scheda completa</button></div>`);
+    <div class="qv-info">
+      <div class="qv-scroll"><div class="crumbs"><span>${catName(p.cat)}</span></div>${flag(p)}<h2>${p.name}</h2>${tags()}
+        <p class="desc">${p.d}</p>
+        <div class="rows">${p.rows.map(r => `<div><b>${r[0]}</b>${r[1]}</div>`).join('')}</div>
+        <button class="qv-more" data-qv-page="${p.id}">Vedi la scheda completa</button></div>
+      <div class="qv-bar">
+        <div class="price">${priceHTML(p)}</div>
+        <div class="buy"><div class="step"><button data-qv-q="-1" aria-label="Togli uno">-</button><span id="qvQty">1</span><button data-qv-q="1" aria-label="Aggiungi uno">+</button></div><button class="blk" data-qv-add="${p.id}">Aggiungi al carrello</button></div>
+      </div></div>`);
   box.classList.add('qv'); document.documentElement.classList.add('qv-open');
 }
 function eraModal(i) {

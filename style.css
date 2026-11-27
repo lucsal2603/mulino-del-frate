@@ -432,21 +432,53 @@ s{opacity:.55;font-weight:400}
 
 
 /* ---------------- scheda rapida del prodotto ---------------- */
-.modal .box.qv{max-width:1040px;padding:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
-.qv-stage{position:relative;background:var(--sand);min-height:min(620px,calc(100svh - 32px))}
+.modal .box.qv{max-width:1040px;padding:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden;height:min(640px,calc(100svh - 32px))}
+.qv-stage{position:relative;background:var(--sand);height:100%;min-height:0}
 .qv-stage .eng{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.75}
 .qv-jarwrap{position:absolute;inset:0 0 60px;display:grid;place-items:center}
-.qv-jar{position:relative;max-width:88%;cursor:grab;touch-action:pan-y}
-.qv-stage .hint{bottom:20px}
-.qv-info{padding:clamp(26px,3.6vw,48px);overflow:auto;max-height:calc(100svh - 32px)}
-.qv-info .crumbs{margin-bottom:16px}
-.qv-info h2{font:italic 400 clamp(40px,4vw,60px)/.95 var(--serif);margin:0 0 18px;text-transform:none}
-.qv-info .tags{justify-content:flex-start}
-.qv-info .desc{font-size:13.5px;line-height:1.65;margin:16px 0 22px}
-.qv-info .price{margin:24px 0 16px}
-.qv-more{margin-top:18px;font:500 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid transparent;padding:6px 0;transition:color .3s}
+.qv-jar{position:relative;max-width:88%;max-height:100%;cursor:grab;touch-action:pan-y}
+.qv-stage .hint{bottom:18px}
+/* colonna informazioni: il testo scorre se serve, la barra con prezzo e pulsante resta sempre visibile in basso */
+.qv-info{display:flex;flex-direction:column;min-height:0;height:100%}
+.qv-scroll{flex:1;min-height:0;overflow:auto;padding:clamp(24px,3.4vw,44px) clamp(24px,3.4vw,44px) 16px}
+.qv-scroll .crumbs{margin-bottom:14px}
+.qv-scroll h2{font:italic 400 clamp(34px,3.6vw,56px)/.95 var(--serif);margin:0 0 16px;text-transform:none}
+.qv-scroll .tags{justify-content:flex-start}
+.qv-scroll .desc{font-size:13.5px;line-height:1.6;margin:14px 0 18px}
+.qv-bar{flex:none;border-top:1px solid rgba(0,0,0,.12);padding:14px clamp(24px,3.4vw,44px) 18px;background:var(--cream)}
+.qv-bar .price{margin:0 0 10px;font-size:30px}
+.qv-more{margin-top:14px;font:500 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.05em;padding:6px 0;transition:color .3s}
 .qv-more:hover{color:var(--brown)}
-@media(max-width:760px){.modal .box.qv{grid-template-columns:1fr;overflow:auto}.qv-stage{min-height:50svh}.qv-jarwrap{inset:0 0 78px}.qv-info{max-height:none}}
+@media(max-width:760px){
+  .modal{padding:10px}
+  .modal .box.qv{grid-template-columns:1fr;grid-template-rows:minmax(0,34svh) minmax(0,1fr);height:calc(100svh - 20px);max-height:none}
+  .qv-jarwrap{inset:0 0 40px}
+  .qv-stage .hint{bottom:8px;padding:7px 12px;font-size:10px}
+  .qv-scroll{padding:16px 18px 10px}
+  .qv-scroll h2{font-size:30px;margin-bottom:10px}
+  .qv-scroll .tags{flex-direction:row;gap:12px}
+  .qv-scroll .desc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:10px 0 8px}
+  .qv-scroll .rows{display:none}
+  .qv-scroll .flag{margin-bottom:8px}
+  .qv-bar{padding:12px 18px 14px;display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center}
+  .qv-bar .price{margin:0;font-size:26px}
+  .qv-bar .buy{grid-column:1/-1}
+}
+/* scheda completa su telefono: prezzo e pulsante in una barra fissa in basso */
+@media(max-width:860px){
+  .pdp-bar{position:fixed;left:0;right:0;bottom:0;z-index:57;background:var(--cream);border-top:1px solid rgba(0,0,0,.14);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center;box-shadow:0 -10px 30px rgba(0,0,0,.08)}
+  .pdp-bar .price{margin:0;font-size:24px;text-align:right}
+  .pdp-bar-name{display:block!important;font:italic 400 20px/1.1 var(--serif);align-self:center}
+  .pdp-bar .buy{grid-column:1/-1}
+  .pdp-info{padding-bottom:150px}
+  html:has(#v-prodotto:not([hidden])) .draft{display:none}
+}
+.pdp-bar-name{display:none}
+/* scheda completa su desktop: prezzo e pulsante restano attaccati in fondo allo schermo, dentro la colonna */
+@media(min-width:861px){.pdp-bar{position:sticky;bottom:0;z-index:3;background:var(--cream);padding:14px 0 18px;margin-top:10px;border-top:1px solid rgba(0,0,0,.12)}.pdp-bar .price{margin:0 0 12px}}
+/* l'etichetta della bozza non copre finestre e carrello */
+html:has(#modal[aria-hidden=false]) .draft,html:has(#drawer[aria-hidden=false]) .draft{opacity:0}
+.draft{transition:opacity .3s}
 .hint{white-space:nowrap}
 .cards{cursor:grab;user-select:none}
 .cards.grabbing{scroll-snap-type:none;cursor:grabbing}
