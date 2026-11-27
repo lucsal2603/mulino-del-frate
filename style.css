@@ -131,8 +131,10 @@ p{margin:0}
 .jars-on [data-jar]::after{transform:translateY(35%)}
 .jar-cv,.jar-gl{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;animation:jarIn .7s ease both}
 @keyframes jarIn{from{opacity:0}}
-.jar-fallback{transition:opacity .6s}
-.has3d > .jar-fallback{opacity:0}
+/* le foto scontornate servono solo se il 3D non può partire: altrimenti finché il modello non è pronto si vede soltanto l'ombra */
+.jar-fallback{opacity:0;transition:opacity .6s}
+.no3d .jar-fallback{opacity:1}
+.no3d .has3d > .jar-fallback{opacity:0}
 .antico-cta{margin-top:40px}
 
 /* ---------------- film (miele che cola) ---------------- */

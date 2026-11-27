@@ -342,27 +342,17 @@ function initBig() {
   if (!R2.getContext()) { R2 = null; return; }
   R2.setPixelRatio(renderer.getPixelRatio()); R2.setClearColor(0, 0); R2.autoClear = false;
   R2.toneMapping = THREE.NeutralToneMapping; R2.toneMappingExposure = 1.0; R2.outputColorSpace = THREE.SRGBColorSpace;
-  R2.transmissionResolutionScale = SMALL ? .4 : .5;
+  R2.transmissionResolutionScale = 1;
   R2.domElement.className = 'jar-gl'; R2.domElement.setAttribute('aria-hidden', 'true');
   const pm2 = new THREE.PMREMGenerator(R2);
   ENV2 = HDRTEX ? pm2.fromEquirectangular(HDRTEX).texture : pm2.fromScene(new RoomEnvironment(), .04).texture;
-}
-// qualità adattiva: se il dispositivo fatica (fotogrammi lenti), la risoluzione del prodotto grande scende; se c'è margine, risale
-const LEVELS = [1, .85, .7, .6];
-let lvl = 0, bigQ = 1, emaDt = 1 / 60, lastChange = 0;
-function adapt(dt) {
-  emaDt = emaDt * .92 + dt * .08;
-  const now = performance.now(); if (now - lastChange < 2000) return;
-  if (emaDt > 1 / 38 && lvl < LEVELS.length - 1) { lvl++; lastChange = now; }
-  else if (emaDt < 1 / 56 && lvl > 0) { lvl--; lastChange = now; }
-  bigQ = LEVELS[lvl];
 }
 function drawBig(el, m, st, r) {
   if (bigEl !== el) {
     const old = el.querySelector(':scope > canvas.jar-cv'); if (old) old.remove();
     el.appendChild(R2.domElement); el.classList.add('has3d'); bigEl = el;
   }
-  const q = (SMALL ? .85 : 1) * bigQ, w = Math.max(2, Math.round(r.width * q)), h = Math.max(2, Math.round(r.height * q));
+  const w = Math.max(2, Math.round(r.width)), h = Math.max(2, Math.round(r.height));
   R2.getSize(_sz); if (_sz.x !== w || _sz.y !== h) R2.setSize(w, h, false);
   frameCamera(CAM2, m, r.width / r.height, +(el.dataset.pad || 1.14));
   scene.environment = ENV2;
@@ -393,7 +383,6 @@ function render() {
   if (dirty) collect();
   frame++;
   const dt = Math.min(clock.getDelta(), .05);
-  adapt(dt);
   const W = innerWidth, H = innerHeight, pr = renderer.getPixelRatio(), gl = renderer.domElement;
   let bigDone = false;
   // il motore grande resta all'elemento che lo ha, finché quello è a schermo
@@ -412,7 +401,7 @@ function render() {
     const scrolling = performance.now() - lastScroll < 180;
     // mentre si scorre, i riquadri piccoli restano fermi (la loro tela scorre già con la pagina) e i grandi vanno a fotogrammi alterni
     if (!st.drag && !big && (scrolling || (frame + st.i) % 2)) continue;
-    renderer.transmissionResolutionScale = big ? (SMALL ? .35 : .5) : .3;
+    renderer.transmissionResolutionScale = .75;
     const step = st.t; st.t = 0;
     const host = el.closest('.prod') || el;
     const speed = RM ? 0 : (+(el.dataset.speed || .35)) * (host.matches(':hover') ? 3 : 1);
@@ -421,7 +410,7 @@ function render() {
     m.pivot.visible = true;
     if (big && R2 && !bigDone && (bigEl === el || !bigEl || !bigEl.isConnected || !visibleBig)) { drawBig(el, m, st, r); bigDone = true; m.pivot.visible = false; continue; }
     // se il riquadro è più grande dello spazio di lavoro, si rende un po' più piccolo e si ingrandisce nella copia
-    const q = SMALL && big ? .8 : 1, k = Math.min(1, W / r.width, H / r.height) * q, vw = Math.floor(r.width * k), vh = Math.floor(r.height * k);
+    const k = Math.min(1, W / r.width, H / r.height), vw = Math.floor(r.width * k), vh = Math.floor(r.height * k);
     const cam = camFor(vw, vh);
     frameCamera(cam, m, r.width / r.height, +(el.dataset.pad || 1.14));
     renderer.setViewport(0, 0, vw, vh); renderer.setScissor(0, 0, vw, vh); renderer.setScissorTest(true);
@@ -469,12 +458,13 @@ function fillSnaps() { document.querySelectorAll('img[data-snap]').forEach(im =>
 /* ------------------------------------------------------------------ avvio */
 async function start() {
   const canvas = document.createElement('canvas'); canvas.id = 'jarsCanvas';
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return; }
-  if (!renderer.getContext()) return;
-  renderer.setPixelRatio(Math.min(devicePixelRatio, SMALL ? 1.25 : 1.5)); renderer.setSize(innerWidth, innerHeight); renderer.setClearColor(0, 0); renderer.autoClear = false;
+  const no3d = () => document.documentElement.classList.add('no3d');
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { no3d(); return; }
+  if (!renderer.getContext()) { no3d(); return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.setClearColor(0, 0); renderer.autoClear = false;
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.0; renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = false; // l'ombra a terra è morbida e disegnata a parte: niente passaggio d'ombra a ogni fotogramma
-  renderer.transmissionResolutionScale = .5;
+  renderer.transmissionResolutionScale = .75;
   maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   scene = new THREE.Scene();
   await idle();

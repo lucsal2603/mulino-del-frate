@@ -663,12 +663,13 @@ let jarsLoaded = false, lastIn = 0;
 ['scroll', 'touchstart', 'touchmove', 'wheel'].forEach(ev => addEventListener(ev, () => { lastIn = performance.now(); }, { passive: true }));
 function loadJars() {
   if (jarsLoaded) return; jarsLoaded = true;
-  const go = () => { const sc = document.createElement('script'); sc.type = 'module'; sc.src = 'jars.js'; document.body.appendChild(sc); };
+  const go = () => { const sc = document.createElement('script'); sc.type = 'module'; sc.src = 'jars.js'; sc.onerror = () => document.documentElement.classList.add('no3d'); document.body.appendChild(sc); };
   // si parte solo quando chi visita è fermo da un attimo: leggere la libreria 3D blocca il telefono per qualche istante
   const tryGo = () => performance.now() - lastIn < 600 ? setTimeout(tryGo, 200) : (window.requestIdleCallback ? requestIdleCallback(go, { timeout: 800 }) : go());
   tryGo();
 }
 setTimeout(loadJars, 6000); // rete di sicurezza
+setTimeout(() => { if (!document.documentElement.classList.contains('jars-on')) document.documentElement.classList.add('no3d'); }, 40000);
 
 /* ================= avvio ================= */
 renderCart();
