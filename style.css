@@ -129,10 +129,10 @@ p{margin:0}
 [data-jar]{position:relative;isolation:isolate}
 [data-jar]::after{content:"";position:absolute;left:8%;right:8%;bottom:0;height:9%;background:radial-gradient(closest-side,rgba(45,34,22,.32),rgba(45,34,22,0));pointer-events:none;z-index:-1}
 .jars-on [data-jar]::after{transform:translateY(35%)}
-.jar-cv{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;animation:jarIn .7s ease both}
+.jar-cv,.jar-gl{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;animation:jarIn .7s ease both}
 @keyframes jarIn{from{opacity:0}}
 .jar-fallback{transition:opacity .6s}
-.jars-on .jar-fallback{opacity:0}
+.has3d > .jar-fallback{opacity:0}
 .antico-cta{margin-top:40px}
 
 /* ---------------- film (miele che cola) ---------------- */

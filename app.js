@@ -163,7 +163,7 @@ const scenes = {
     const shelf = $('#shelf');
     // scaffale in loop continuo: scorre da solo, accelera con la velocità dello scroll e cambia verso se si torna su
     const loopW = () => (shelf.scrollWidth + parseFloat(getComputedStyle(shelf).columnGap || 0)) / 2;
-    const loop = gsap.fromTo(shelf, { x: 0 }, { x: () => -loopW(), duration: 38, ease: 'none', repeat: -1, invalidateOnRefresh: true });
+    const loop = gsap.fromTo(shelf, { x: 0 }, { x: () => -loopW(), duration: 38, ease: 'none', repeat: -1 });
     loop.totalTime(38 * 500); // margine per poter girare anche all'indietro
     let dir = 1;
     ScrollTrigger.create({ trigger: '.shelf-wrap', start: 'top bottom', end: 'bottom top',
@@ -656,11 +656,14 @@ let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTime
 }
 
 /* ================= 3D: si carica dopo l'apertura, nei momenti liberi ================= */
-let jarsLoaded = false;
+let jarsLoaded = false, lastIn = 0;
+['scroll', 'touchstart', 'touchmove', 'wheel'].forEach(ev => addEventListener(ev, () => { lastIn = performance.now(); }, { passive: true }));
 function loadJars() {
   if (jarsLoaded) return; jarsLoaded = true;
   const go = () => { const sc = document.createElement('script'); sc.type = 'module'; sc.src = 'jars.js'; document.body.appendChild(sc); };
-  window.requestIdleCallback ? requestIdleCallback(go, { timeout: 1200 }) : setTimeout(go, 300);
+  // si parte solo quando chi visita è fermo da un attimo: leggere la libreria 3D blocca il telefono per qualche istante
+  const tryGo = () => performance.now() - lastIn < 600 ? setTimeout(tryGo, 200) : (window.requestIdleCallback ? requestIdleCallback(go, { timeout: 800 }) : go());
+  tryGo();
 }
 setTimeout(loadJars, 6000); // rete di sicurezza
 
