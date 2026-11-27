@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js">
 </head>
 <body>
 
@@ -31,7 +33,7 @@
 </svg>
 
 <!-- sipario di caricamento e di cambio pagina -->
-<div id="curtain" aria-hidden="true"><span id="curtainWord">Mulino del Frate</span></div>
+<div id="curtain" aria-hidden="true"><span id="curtainWord">Mulino del Frate</span><div id="curtainLoad"><div id="curtainBar"><i></i></div><span id="curtainPct">0%</span></div></div>
 
 <!-- NAV -->
 <header class="nav" id="nav">
@@ -340,7 +342,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="app.js"></script>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 
 </body>
 </html>

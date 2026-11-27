@@ -5,10 +5,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let lastInput = 0;
-['scroll', 'touchstart', 'touchmove', 'wheel', 'pointerdown'].forEach(ev => addEventListener(ev, () => { lastInput = performance.now(); }, { passive: true }));
-const calm = async (ms = 450) => { while (performance.now() - lastInput < ms) await new Promise(r => setTimeout(r, 120)); };
-const idle = async () => { await calm(); await new Promise(r => window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 300 }) : setTimeout(r, 30)); };
+// pausa brevissima tra un passo e l'altro: la barra di caricamento resta animata
+const idle = () => new Promise(r => setTimeout(r, 0));
+const progress = p => dispatchEvent(new CustomEvent('jars-progress', { detail: p }));
 const SMALL = innerWidth < 760;
 const V2 = (x, y) => new THREE.Vector2(x, y);
 
@@ -248,6 +247,18 @@ function creamJar(id) {
 let renderer, scene, camera, key, models = {};
 const state = new WeakMap();
 let AO, LOGO;
+// ogni vetro realistico ha un gemello leggero, usato nei riquadri piccoli e nelle miniature
+function makeLite(m) {
+  m.glass = [];
+  m.g.traverse(o => {
+    const f = o.material; if (!f || !f.transmission) return;
+    const amber = f.attenuationDistance < 1;
+    const lite = new THREE.MeshPhysicalMaterial({ color: amber ? 0x3a1606 : 0xffffff, roughness: .03, metalness: 0, clearcoat: 1, clearcoatRoughness: .03,
+      transparent: true, opacity: amber ? .94 : .2, depthWrite: amber, envMapIntensity: 1.3, specularIntensity: 1 });
+    o.userData.full = f; o.userData.lite = lite; m.glass.push(o);
+  });
+}
+function glassMode(m, full) { if (m.glassFull === full) return; m.glass.forEach(o => { o.material = full ? o.userData.full : o.userData.lite; }); m.glassFull = full; }
 // rende un modello utilizzabile: base d'ombra morbida, perno di rotazione, materiali compilati
 async function ready(id, m) {
   const blob = new THREE.Mesh(new THREE.PlaneGeometry(m.r * 2.5, m.r * 2.5), new THREE.MeshBasicMaterial({ color: 0x1e140c, alphaMap: AO, transparent: true, opacity: .62, depthWrite: false, toneMapped: false }));
@@ -255,20 +266,26 @@ async function ready(id, m) {
   m.g.position.y = -m.h / 2; m.pivot = new THREE.Group(); m.pivot.add(m.g); m.pivot.visible = false; scene.add(m.pivot); // nascosto finché non è pronto
   m.mats = []; m.g.traverse(o => { if (o.material && !m.mats.includes(o.material)) { o.material.userData.base = o.material.opacity; o.material.userData.tr = o.material.transparent; m.mats.push(o.material); } });
   setOpacity(m, 1);
+  makeLite(m);
   await idle();
   // la compilazione parte subito (sincrona); il modello torna invisibile prima di attendere, così non compare nelle altre viste
-  Object.values(models).forEach(x => x.pivot.visible = false); m.pivot.visible = true;
-  const pending = renderer.compileAsync ? renderer.compileAsync(scene, camera) : (renderer.compile(scene, camera), null);
-  m.pivot.visible = false;
-  if (pending) await pending;
+  Object.values(models).forEach(x => x.pivot.visible = false);
+  for (const full of [false, true]) {
+    glassMode(m, full); m.pivot.visible = true;
+    const pending = renderer.compileAsync ? renderer.compileAsync(scene, camera) : (renderer.compile(scene, camera), null);
+    m.pivot.visible = false;
+    if (pending) await pending;
+  }
+  glassMode(m, false);
   await idle();
   // primo disegno di prova: carica le texture nella scheda video adesso, non durante lo scroll
   m.pivot.visible = true;
-  frameCamera(camera, m, .8, 1.1); renderer.setViewport(0, 0, 64, 80); renderer.setScissor(0, 0, 64, 80); renderer.setScissorTest(true); renderer.render(scene, camera);
+  glassMode(m, false); frameCamera(camera, m, .8, 1.1); renderer.setViewport(0, 0, 64, 80); renderer.setScissor(0, 0, 64, 80); renderer.setScissorTest(true); renderer.render(scene, camera);
   m.pivot.visible = false;
   await idle();
   warmBig(m);
   models[id] = m; dirty = true;
+  progress(.4 + .54 * Object.keys(models).length / 9);
 }
 async function buildFirst(logo) {
   LOGO = logo;
@@ -343,6 +360,7 @@ function initBig() {
   R2.setPixelRatio(renderer.getPixelRatio()); R2.setClearColor(0, 0); R2.autoClear = false;
   R2.toneMapping = THREE.NeutralToneMapping; R2.toneMappingExposure = 1.0; R2.outputColorSpace = THREE.SRGBColorSpace;
   R2.transmissionResolutionScale = 1;
+  R2.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); document.documentElement.classList.add('lost3d'); });
   R2.domElement.className = 'jar-gl'; R2.domElement.setAttribute('aria-hidden', 'true');
   const pm2 = new THREE.PMREMGenerator(R2);
   ENV2 = HDRTEX ? pm2.fromEquirectangular(HDRTEX).texture : pm2.fromScene(new RoomEnvironment(), .04).texture;
@@ -355,6 +373,7 @@ function drawBig(el, m, st, r) {
   const w = Math.max(2, Math.round(r.width)), h = Math.max(2, Math.round(r.height));
   R2.getSize(_sz); if (_sz.x !== w || _sz.y !== h) R2.setSize(w, h, false);
   frameCamera(CAM2, m, r.width / r.height, +(el.dataset.pad || 1.14));
+  glassMode(m, true);
   scene.environment = ENV2;
   R2.setClearColor(0, 0); R2.clear(); R2.setClearColor(st.bg, 1); R2.render(scene, CAM2); R2.setClearColor(0, 0);
   scene.environment = ENV1;
@@ -362,7 +381,7 @@ function drawBig(el, m, st, r) {
 // prima volta di ogni modello sul motore grande: materiali e texture caricati subito, non quando appare
 function warmBig(m) {
   if (!R2) return;
-  m.pivot.visible = true; scene.environment = ENV2;
+  glassMode(m, true); m.pivot.visible = true; scene.environment = ENV2;
   R2.setSize(64, 80, false); frameCamera(CAM2, m, .8, 1.1); R2.clear(); R2.render(scene, CAM2);
   scene.environment = ENV1; m.pivot.visible = false;
 }
@@ -399,8 +418,8 @@ function render() {
     st.t += dt;
     const big = el.hasAttribute('data-drag') || el.hasAttribute('data-big') || r.height > 360;
     const scrolling = performance.now() - lastScroll < 180;
-    // mentre si scorre, i riquadri piccoli restano fermi (la loro tela scorre già con la pagina) e i grandi vanno a fotogrammi alterni
-    if (!st.drag && !big && (scrolling || (frame + st.i) % 2)) continue;
+    // i piccoli si aggiornano a fotogrammi alterni (girano piano: non si nota) e non si fermano mai, nemmeno scorrendo
+    if (!st.drag && !big && (frame + st.i) % 2) continue;
     renderer.transmissionResolutionScale = .75;
     const step = st.t; st.t = 0;
     const host = el.closest('.prod') || el;
@@ -410,6 +429,7 @@ function render() {
     m.pivot.visible = true;
     if (big && R2 && !bigDone && (bigEl === el || !bigEl || !bigEl.isConnected || !visibleBig)) { drawBig(el, m, st, r); bigDone = true; m.pivot.visible = false; continue; }
     // se il riquadro è più grande dello spazio di lavoro, si rende un po' più piccolo e si ingrandisce nella copia
+    glassMode(m, big);
     const k = Math.min(1, W / r.width, H / r.height), vw = Math.floor(r.width * k), vh = Math.floor(r.height * k);
     const cam = camFor(vw, vh);
     frameCamera(cam, m, r.width / r.height, +(el.dataset.pad || 1.14));
@@ -441,7 +461,7 @@ async function makeSnaps() {
   const H = innerHeight;
   for (const [id, m] of Object.entries(models)) {
     await idle();
-    m.pivot.visible = true; m.pivot.rotation.set(0, -.3, 0); setOpacity(m, 1);
+    glassMode(m, false); m.pivot.visible = true; m.pivot.rotation.set(0, -.3, 0); setOpacity(m, 1);
     frameCamera(camera, m, SW / SH, 1.04);
     renderer.setScissorTest(false); renderer.clear(); renderer.setScissorTest(true);
     renderer.setViewport(0, 0, SW, SH); renderer.setScissor(0, 0, SW, SH); renderer.setClearColor(0xe4ddd3, 1); renderer.render(scene, camera); renderer.setClearColor(0, 0);
@@ -461,12 +481,15 @@ async function start() {
   const no3d = () => document.documentElement.classList.add('no3d');
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { no3d(); return; }
   if (!renderer.getContext()) { no3d(); return; }
+  const lost = e => { e.preventDefault(); document.documentElement.classList.add('lost3d'); };
+  canvas.addEventListener('webglcontextlost', lost);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.setClearColor(0, 0); renderer.autoClear = false;
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 1.0; renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = false; // l'ombra a terra è morbida e disegnata a parte: niente passaggio d'ombra a ogni fotogramma
   renderer.transmissionResolutionScale = .75;
   maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   scene = new THREE.Scene();
+  progress(.08);
   await idle();
   const pm = new THREE.PMREMGenerator(renderer);
   try {
@@ -482,6 +505,7 @@ async function start() {
     scene.environment = pm.fromEquirectangular(hdr).texture; HDRTEX = hdr;
   } catch (e) { scene.environment = pm.fromScene(new RoomEnvironment(), .04).texture; }
   ENV1 = scene.environment;
+  progress(.22);
   scene.environmentRotation = new THREE.Euler(0, -.9, 0); scene.environmentIntensity = 1.05;
   await idle();
   initBig();
@@ -491,12 +515,15 @@ async function start() {
   await Promise.all(['400 40px "Noto Sans"', '700 40px "Noto Sans"', '400 40px "Noto Serif"'].map(f => document.fonts.load(f)));
   const logo = await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = 'assets/logo-gallo.jpg'; });
   await buildFirst(logo);
+  progress(.4);
   document.documentElement.classList.add('jars-on');
   addEventListener('resize', () => renderer.setSize(innerWidth, innerHeight));
   if (window.gsap) gsap.ticker.add(render); else renderer.setAnimationLoop(render);
   window.MDFJars = { snap: id => snaps[id] };
   await buildRest();
+  progress(.94);
   await makeSnaps(); fillSnaps();
+  progress(1);
   dispatchEvent(new Event('jars-ready'));
 }
 start();

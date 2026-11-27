@@ -658,33 +658,34 @@ let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTime
   io.observe($('#map'));
 }
 
-/* ================= 3D: si carica dopo l'apertura, nei momenti liberi ================= */
-let jarsLoaded = false, lastIn = 0;
-['scroll', 'touchstart', 'touchmove', 'wheel'].forEach(ev => addEventListener(ev, () => { lastIn = performance.now(); }, { passive: true }));
-function loadJars() {
-  if (jarsLoaded) return; jarsLoaded = true;
-  const go = () => { const sc = document.createElement('script'); sc.type = 'module'; sc.src = 'jars.js'; sc.onerror = () => document.documentElement.classList.add('no3d'); document.body.appendChild(sc); };
-  // si parte solo quando chi visita è fermo da un attimo: leggere la libreria 3D blocca il telefono per qualche istante
-  const tryGo = () => performance.now() - lastIn < 600 ? setTimeout(tryGo, 200) : (window.requestIdleCallback ? requestIdleCallback(go, { timeout: 800 }) : go());
-  tryGo();
-}
-setTimeout(loadJars, 6000); // rete di sicurezza
-setTimeout(() => { if (!document.documentElement.classList.contains('jars-on')) document.documentElement.classList.add('no3d'); }, 40000);
-
-/* ================= avvio ================= */
+/* ================= avvio: la schermata iniziale resta finché non è pronto tutto, 3D compreso ================= */
 renderCart();
-const heroImg = $('#heroImg');
-const ready = Promise.all([document.fonts.ready, heroImg.complete ? 1 : new Promise(r => { heroImg.onload = r; heroImg.onerror = r; setTimeout(r, 3500); })]);
-ready.then(() => {
+const heroImg = $('#heroImg'), bar = $('#curtainBar i'), pct = $('#curtainPct');
+let shown3 = 0;
+const setBar = p => { shown3 = Math.max(shown3, p); gsap.to(bar, { scaleX: shown3, duration: .5, ease: 'power2.out', overwrite: true }); pct.textContent = Math.round(shown3 * 100) + '%'; };
+addEventListener('jars-progress', e => setBar(.1 + e.detail * .9));
+const jarsReady = new Promise(res => {
+  addEventListener('jars-ready', res, { once: true });
+  const sc = document.createElement('script'); sc.type = 'module'; sc.src = 'jars.js';
+  sc.onerror = () => { document.documentElement.classList.add('no3d'); res(); };
+  document.body.appendChild(sc);
+  const t = setInterval(() => { if (document.documentElement.classList.contains('no3d')) { clearInterval(t); res(); } }, 300);
+});
+// rete di sicurezza: se il 3D impiega troppo (rete lentissima), il sito si apre comunque con le foto
+const tooLong = new Promise(res => setTimeout(() => { if (!document.documentElement.classList.contains('jars-on')) document.documentElement.classList.add('no3d'); res(); }, 30000));
+const basics = Promise.all([document.fonts.ready, heroImg.complete ? 1 : new Promise(r => { heroImg.onload = r; heroImg.onerror = r; setTimeout(r, 6000); })]).then(() => setBar(.1));
+const w = new SplitText(cWord, { type: 'chars', mask: 'chars' });
+lock(true);
+if (!RM) gsap.from(w.chars, { yPercent: 110, duration: .9, ease: 'expo.out', stagger: .03 });
+Promise.all([basics, Promise.race([jarsReady, tooLong])]).then(() => {
+  setBar(1);
   const r = parse();
-  const w = new SplitText(cWord, { type: 'chars', mask: 'chars' });
   show(r, true);
-  if (RM) { curtain.style.display = 'none'; loadJars(); return; }
-  lock(true);
-  gsap.timeline({ onComplete: () => { lock(false); w.revert(); setTimeout(loadJars, 900); } })
-    .from(w.chars, { yPercent: 110, duration: .9, ease: 'expo.out', stagger: .03 })
-    .to(w.chars, { yPercent: -110, duration: .6, ease: 'expo.in', stagger: .015 }, '+=.25')
-    .to(curtain, { yPercent: -100, duration: 1.1, ease: 'expo.inOut' }, '-=.2')
+  if (RM) { curtain.style.display = 'none'; lock(false); return; }
+  gsap.timeline({ delay: .35, onComplete: () => { lock(false); w.revert(); } })
+    .to('#curtainLoad', { opacity: 0, duration: .3 })
+    .to(w.chars, { yPercent: -110, duration: .6, ease: 'expo.in', stagger: .015 }, 0)
+    .to(curtain, { yPercent: -100, duration: 1.1, ease: 'expo.inOut' }, .4)
     .set(curtain, { display: 'none' });
 });
 }
